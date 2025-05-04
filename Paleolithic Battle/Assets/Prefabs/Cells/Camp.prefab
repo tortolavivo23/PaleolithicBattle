@@ -106,6 +106,9 @@ MonoBehaviour:
   x: 0
   y: 0
   isOccupied: 0
+  capturable: 1
+  player: 0
+  enemy: 0
 --- !u!61 &106996012161075976
 BoxCollider2D:
   m_ObjectHideFlags: 0

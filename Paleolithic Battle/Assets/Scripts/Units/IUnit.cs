@@ -20,6 +20,7 @@ public interface IUnit
     bool playerUnit { get; set; }
     void Move(int x, int y);
     void Attack(IUnit target);
+    void GetDamage(int damage);
     void SetPosition(int x, int y);
     (int x, int y) GetPosition();
     bool IsAlive();

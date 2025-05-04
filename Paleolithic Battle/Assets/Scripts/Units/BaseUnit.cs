@@ -25,6 +25,11 @@ public class BaseUnit : MonoBehaviour, IUnit
     [SerializeField] private int _moneyCost = 100; // Cost of the unit in money
     public int moneyCost { get => _moneyCost; set => _moneyCost = value; } // Cost of the unit in money
 
+    private int _lastMoveTurn = -1; // Last turn the unit moved
+    public int lastMoveTurn { get => _lastMoveTurn; set => _lastMoveTurn = value; } // Last turn the unit moved
+    private int _lastActionTurn = -1; // Last turn the unit performed an action
+    public int lastActionTurn { get => _lastActionTurn; set => _lastActionTurn = value; } // Last turn the unit performed an action
+
     // Removed the redundant gameObject property to avoid conflict with the inherited member
 
     int x,y;
@@ -38,7 +43,15 @@ public class BaseUnit : MonoBehaviour, IUnit
 
     public void Attack(IUnit target)
     {
-        // Add logic to attack the target unit
+        if (target == null || !target.IsAlive())
+        {
+            Debug.Log("Target is null or not alive.");
+            return;
+        }
+
+        // Calculate damage based on attack and defense power
+        int damage = Mathf.Max(0, attackPower);
+        target.GetDamage(damage);
     }
 
     public void SetPosition(int newX, int newY)
@@ -55,6 +68,11 @@ public class BaseUnit : MonoBehaviour, IUnit
     public bool IsAlive()
     {
         return health > 0;
+    }
+
+    public void GetDamage(int damage)
+    {
+        health -= damage;
     }
 
     private void Start()

@@ -691,6 +691,9 @@ MonoBehaviour:
   UnitBasePrefab: {fileID: 2946679824803635572, guid: 24aca76218690a04e9a29deb2b8564cf, type: 3}
   UnitHeavyPrefab: {fileID: 0}
   UnitRangePrefab: {fileID: 0}
+  moneyPlayer: 1000
+  moneyEnemy: 1000
+  unitTypes: 010000000300000002000000
 --- !u!4 &1884789143
 Transform:
   m_ObjectHideFlags: 0

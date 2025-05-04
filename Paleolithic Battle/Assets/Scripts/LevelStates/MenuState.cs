@@ -33,7 +33,7 @@ public class MenuState : ILevelState
                 CreateButton("Capture", () => CaptureCell()); // Opción de capturar la celda
             }
         }
-        else if (selectedCell.cellType == CellType.Camp) // Si la celda es un campamento, mostramos las opciones de curación
+        else if (selectedCell.cellType == CellType.Camp && selectedCell.player)
         {
             CreateButton("Train", () => GoToTrainState());
         }

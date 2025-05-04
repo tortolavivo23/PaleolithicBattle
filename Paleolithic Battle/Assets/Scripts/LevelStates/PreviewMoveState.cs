@@ -105,9 +105,9 @@ public class PreviewMoveState : ILevelState
                     // Aquí puedes manejar la lógica de movimiento de la unidad
                     levelManager.MoveUnit(selectedUnit, clickedCell); // Mover la unidad a la celda seleccionada
                     selectedUnit.Move(clickedCell.x, clickedCell.y); // Mover la unidad a la celda seleccionada
-                    GoToPlayerTurnState(); // Volver al estado de turno del jugador
                 }
             }
+            GoToPlayerTurnState(); // Volver al estado de turno del jugador
         }
     }
 

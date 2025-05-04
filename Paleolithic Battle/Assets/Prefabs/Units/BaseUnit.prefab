@@ -106,4 +106,5 @@ MonoBehaviour:
   _minAttackRange: 1
   _maxAttackRange: 1
   _playerUnit: 1
-  _health: 100
+  _health: 10
+  _moneyCost: 100
