@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c03a53f4f9a6b484685e218d36088bb9, type: 3}
+  m_Name: Map
+  m_EditorClassIdentifier: 
+  map:
+  - cells: 010000000300000001000000
+    units: 000000000100000000000000
+    player: ffffffff00000000ffffffff
+  - cells: 030000000100000003000000
+    units: 000000000000000000000000
+    player: ffffffffffffffffffffffff
+  - cells: 000000000000000005000000
+    units: 010000000000000000000000
+    player: 00000000ffffffff01000000
