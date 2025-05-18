@@ -10,6 +10,10 @@ public class Cell : MonoBehaviour
     public bool capturable = false; // Indicates if the cell can be captured
     public bool player = false;
     public bool enemy = false;
+
+    public GameObject spriteNeutral;
+    public GameObject spritePlayer;
+    public GameObject spriteEnemy;
     
 
     private void Start()
@@ -25,5 +29,22 @@ public class Cell : MonoBehaviour
     public void SetCellType(CellType newType)
     {
         cellType = newType;
+    }
+
+    public void ChangePlayer(bool isPlayer)
+    {
+        if(!capturable) return;
+        player = isPlayer;
+        enemy = !isPlayer;
+        if(player){
+            spriteEnemy.SetActive(false);
+            spriteNeutral.SetActive(false);
+            spritePlayer.SetActive(true);
+        }
+        else{
+            spritePlayer.SetActive(false);
+            spriteNeutral.SetActive(false);
+            spriteEnemy.SetActive(true);
+        }
     }
 }

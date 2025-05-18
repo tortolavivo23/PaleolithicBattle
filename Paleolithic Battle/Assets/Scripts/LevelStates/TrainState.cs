@@ -10,9 +10,14 @@ public class TrainState : ILevelState
 
     private int buttonCount = 0; // Contador de botones creados
 
-    public TrainState(LevelManager levelManager, Cell selectedCell)
+    public TrainState(LevelManager levelManager)
     {
         this.levelManager = levelManager;
+    }
+
+    public void EnterState()
+    {
+        buttonCount = 0;
         menuUI = levelManager.menu; // Obtenemos la UI del menú de entrenamiento
         foreach (Transform child in menuUI.transform) // Limpiar el menú de botones anteriores
         {
@@ -23,12 +28,23 @@ public class TrainState : ILevelState
         foreach (UnitType unitType in levelManager.unitTypes)
         {
             if (unitType == UnitType.None || !levelManager.CanAffordUnit(unitType, true)) continue;
-            CreateButton(GetNameUnitType(unitType) + " " + levelManager.GetUnitCost(unitType), () => levelManager.CreateUnit(unitType, selectedCell, true)); // Creamos un botón para cada tipo de unidad
+            CreateButton(
+                GetNameUnitType(unitType) + " " + levelManager.GetUnitCost(unitType), () => levelManager.CreateUnit(unitType, levelManager.selectedCell, true)
+                ); // Creamos un botón para cada tipo de unidad
         }
         CreateButton("Close", () => GoToPlayerTurnState());
     }
 
-    public void GoToAttackState()
+    public void ExitState()
+    {
+        foreach (Transform child in menuUI.transform) // Limpiar el menú de botones anteriores
+        {
+            Object.Destroy(child.gameObject);
+        }
+        menuUI.SetActive(false); // Ocultar el menú
+    }
+
+    public void GoToPreviewAttackState()
     {
         throw new System.NotImplementedException();
     }
@@ -45,8 +61,7 @@ public class TrainState : ILevelState
 
     public void GoToPlayerTurnState()
     {
-        levelManager.currentState = levelManager.playerTurnState; // Cambiamos el estado actual a PlayerTurnState
-        levelManager.menu.SetActive(false); // Desactivamos el menú de entrenamiento
+        levelManager.ChangeState(levelManager.playerTurnState); // Cambiamos al estado de turno del jugador
     }
 
     public void GoToPreviewMoveState()
@@ -90,5 +105,10 @@ public class TrainState : ILevelState
         button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => onClickAction.Invoke()); // Asignar la acción al botón
         button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => menuUI.SetActive(false)); // Cerrar el menú al hacer clic en el botón
         button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => GoToPlayerTurnState());
+    }
+
+    public void GoToAttackState()
+    {
+        throw new System.NotImplementedException();
     }
 }

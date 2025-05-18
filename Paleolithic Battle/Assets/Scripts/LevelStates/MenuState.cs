@@ -13,24 +13,34 @@ public class MenuState : ILevelState
 
 
 
-    public MenuState(LevelManager levelManager, Cell selectedCell)
+    public MenuState(LevelManager levelManager)
     {
         this.levelManager = levelManager;
         menuUI = levelManager.menu;
+        
+    }
+
+    public void EnterState()
+    {
+        buttonCount = 0; // Reiniciar el contador de botones
         foreach (Transform child in menuUI.transform) // Limpiar el menú de botones anteriores
         {
             Object.Destroy(child.gameObject);
         }
         menuUI.SetActive(true);
         buttonPrefab = levelManager.buttonPrefab;
-        this.selectedCell = selectedCell; // Guardamos la celda seleccionada
+        selectedCell = levelManager.selectedCell; // Guardamos la celda seleccionada
 
         if(selectedCell.isOccupied) // Si la celda está ocupada, mostramos las opciones de ataque
         {
-            CreateButton("Attack", () => GoToAttackState());
-            CreateButton("Move", () => GoToPreviewMoveState()); // Opción de mover a la celda seleccionada
-            if(selectedCell.capturable && !selectedCell.player){
-                CreateButton("Capture", () => CaptureCell()); // Opción de capturar la celda
+            IUnit unit = selectedCell.unit; // Obtenemos la unidad de la celda seleccionada
+            if(unit.lastActionTurn < levelManager.currentTurn) // Si la unidad no ha actuado en este turno
+            {
+                CreateButton("Attack", () => GoToPreviewAttackState()); // Opción de atacar
+                if(selectedCell.capturable && !selectedCell.player)
+                    CreateButton("Capture", () => CaptureCell()); // Opción de capturar la celda
+                if (unit.lastMoveTurn < levelManager.currentTurn) // Si la unidad no se ha movido en este turno
+                    CreateButton("Move", () => GoToPreviewMoveState()); // Opción de mover a la celda seleccionada
             }
         }
         else if (selectedCell.cellType == CellType.Camp && selectedCell.player)
@@ -40,16 +50,23 @@ public class MenuState : ILevelState
         CreateButton("Close", () => GoToPlayerTurnState()); // Opción de cerrar el menú y volver al turno del jugador
     }
 
+    public void ExitState()
+    {
+        foreach (Transform child in menuUI.transform) // Limpiar el menú de botones anteriores
+        {
+            Object.Destroy(child.gameObject);
+        }
+        menuUI.SetActive(false); // Ocultar el menú
+    }
+
     public void GoToTrainState()
     {
-        levelManager.trainState = new TrainState(levelManager, selectedCell); // Cambiamos al estado de entrenamiento
-        levelManager.currentState = levelManager.trainState; // Cambiamos el estado actual a TrainState
+        levelManager.ChangeState(levelManager.trainState); // Cambiamos al estado de entrenamiento
     }
-    public void GoToAttackState()
+    public void GoToPreviewAttackState()
     {
-        levelManager.attackState = new AttackState(levelManager, selectedCell); // Cambiamos al estado de ataque
-        levelManager.currentState = levelManager.attackState; // Cambiamos el estado actual a AttackState
-        menuUI.SetActive(false); // Cerrar el menú
+        levelManager.ChangeState(levelManager.previewAttackState); // Cambiamos el estado actual a AttackState
+
     }
     public void GoToEnemyTurnState()
     {
@@ -63,15 +80,12 @@ public class MenuState : ILevelState
 
     public void GoToPlayerTurnState()
     {
-        levelManager.currentState = levelManager.playerTurnState;
-        menuUI.SetActive(false); // Cerrar el menú
+        levelManager.ChangeState(levelManager.playerTurnState); // Cambiamos el estado actual a PlayerTurnState
     }
 
     public void GoToPreviewMoveState()
     {
-        levelManager.previewMoveState = new PreviewMoveState(levelManager, selectedCell); // Cambiamos al estado de previsualización de movimiento
-        levelManager.currentState = levelManager.previewMoveState; // Cambiamos al estado de previsualización de movimiento
-        menuUI.SetActive(false); // Cerrar el menú
+        levelManager.ChangeState(levelManager.previewMoveState); // Cambiamos el estado actual a PreviewMoveState
     }
 
     public void UpdateState()
@@ -82,6 +96,7 @@ public class MenuState : ILevelState
     private void CaptureCell()
     {
         levelManager.CaptureCell(selectedCell, true); // Capturar la celda seleccionada
+        selectedCell.unit.lastActionTurn = levelManager.currentTurn; // Actualizar el turno de la unidad
         GoToPlayerTurnState(); // Volver al estado de turno del jugador
     }
 
@@ -95,5 +110,10 @@ public class MenuState : ILevelState
         button.GetComponentInChildren<TextMeshProUGUI>().text = buttonText; // Cambiar el texto del botón
         button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => menuUI.SetActive(false)); // Cerrar el menú al hacer clic en el botón
         button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => onClickAction.Invoke()); // Asignar la acción al botón
+    }
+
+    public void GoToAttackState()
+    {
+        throw new System.NotImplementedException();
     }
 }

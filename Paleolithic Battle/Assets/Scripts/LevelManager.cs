@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class LevelManager : MonoBehaviour
     public Map map; // Reference to the map data
     public float cellSize = 1.0f; // Size of each cell in the grid
     private Cell[][] cells;
-    public GameObject CellEmpytyPrefab;
+    public GameObject CellEmptyPrefab;
     public GameObject CellMountainPrefab;
     public GameObject CellWaterPrefab;
     public GameObject CellForestPrefab;
@@ -25,12 +26,16 @@ public class LevelManager : MonoBehaviour
     public GameObject CellCampPrefab;
     public GameObject CellBasePrefab;
 
+
     public GameObject UnitBasePrefab; // Prefab for the unit
+    public GameObject UnitEnemyBasePrefab; // Prefab for the unit
     public GameObject UnitHeavyPrefab; // Prefab for the unit
+    public GameObject UnitEnemyHeavyPrefab; // Prefab for the unit
     public GameObject UnitRangePrefab; // Prefab for the unit
+    public GameObject UnitEnemyRangePrefab; // Prefab for the unit
 
 
-    [HideInInspector] public ILevelState currentState;
+    private ILevelState currentState;
     [HideInInspector] public PlayerTurnState playerTurnState;
     [HideInInspector] public EnemyTurnState enemyTurnState;
     [HideInInspector] public PreviewMoveState previewMoveState;
@@ -38,6 +43,7 @@ public class LevelManager : MonoBehaviour
 
     [HideInInspector] public TrainState trainState;
 
+    [HideInInspector] public PreviewAttackState previewAttackState;
     [HideInInspector] public AttackState attackState;
 
 
@@ -46,15 +52,37 @@ public class LevelManager : MonoBehaviour
 
     public UnitType[] unitTypes;
 
-    private int currentTurn = 0; // Current turn number
+    [HideInInspector] public int currentTurn = -1; // Current turn number
 
+    public Button endTurnButton; // Reference to the end turn button
+
+    [HideInInspector] public Cell selectedCell; // The cell selected by the player
+    public int minigameResult = 0; // Result of the minigame (0: not played, 1: win, -1: lose)
+
+    [HideInInspector] public Minigames minigames; // Reference to the minigames data
+
+    [HideInInspector] public List<IUnit> enemyUnits = new List<IUnit>();
+    [HideInInspector] public List<Cell> enemyCamps = new List<Cell>();
+
+    void Awake()
+    {
+        currentTurn = -1;
+        InitializeMap();
+        mainCamera.transform.position = new Vector3(map.width / 2f, map.height / 2f, -10); // Center the camera on the map
+    }
     void Start()
     {
         playerTurnState = new PlayerTurnState(this);
         enemyTurnState = new EnemyTurnState(this);
+        previewMoveState = new PreviewMoveState(this);
+        menuState = new MenuState(this);
+        trainState = new TrainState(this);
+        previewAttackState = new PreviewAttackState(this);
+        attackState = new AttackState(this);
         currentState = playerTurnState; // Start with player turn state
-        InitializeMap();
-        mainCamera.transform.position = new Vector3(map.width / 2f, map.height / 2f, -10); // Center the camera on the map
+        minigames = JsonUtility.FromJson<Minigames>(Resources.Load<TextAsset>("minigames").text); // Load minigames data from JSON file
+        currentTurn++;
+
     }
 
     private void InitializeMap()
@@ -71,29 +99,34 @@ public class LevelManager : MonoBehaviour
                 Cell cell = cellObject.GetComponent<Cell>();
                 cell.x = j;
                 cell.y = i;
-                if(cell.capturable){
+                if (cell.capturable)
+                {
                     cell.player = map.GetPlayer(j, i) == 0; // Set player flag based on map data
                     cell.enemy = map.GetPlayer(j, i) == 1; // Set enemy flag based on map data
-                    if(cell.enemy){
-                        cellObject.GetComponent<SpriteRenderer>().color = Color.red; // Set enemy color to red
+                    if (cell.player)
+                    {
+                        cell.spriteEnemy.SetActive(false); // Hide enemy sprite
+                        cell.spriteNeutral.SetActive(false); // Hide neutral sprite
+                        cell.spritePlayer.SetActive(true); // Show player sprite
+                    }
+                    else if (cell.enemy)
+                    {
+                        cell.spritePlayer.SetActive(false); // Hide player sprite
+                        cell.spriteNeutral.SetActive(false); // Hide neutral sprite
+                        cell.spriteEnemy.SetActive(true); // Show enemy sprite
+                        if (cell.cellType == CellType.Camp)
+                        {
+                            enemyCamps.Add(cell); // Add enemy camp to the list
+                        }
+                    }
+                    else
+                    {
+                        cell.spritePlayer.SetActive(false); // Hide player sprite
+                        cell.spriteEnemy.SetActive(false); // Hide enemy sprite
+                        cell.spriteNeutral.SetActive(true); // Show neutral sprite
                     }
                 }
-                GameObject unitPrefab = GetUnitPrefab(map.GetUnitType(j, i));
-                if (unitPrefab != null)
-                {
-                    GameObject unitObject = Instantiate(unitPrefab, new Vector3(j * cellSize, i * cellSize + cellSize / 2, 0), Quaternion.identity);
-                    unitObject.GetComponent<SpriteRenderer>().sortingOrder = -i + 1; // Set sorting order based on y position
-                    IUnit unit = unitObject.GetComponent<IUnit>();
-                    unit.SetPosition(j, i);
-                    unit.playerUnit = map.GetPlayer(j, i) == 0; // Set player unit flag based on map data
-                    if(!unit.playerUnit){
-                        unitObject.GetComponent<SpriteRenderer>().color = Color.red; // Set enemy unit color to red
-                    }
-                    unit.gameObject = unitObject;
-                    cell.unit = unit;
-                    cell.isOccupied = true;
-                    unit.currentCell = cell;
-                }
+                CreateUnit(map.GetUnitType(j, i), cell, map.GetPlayer(j, i) == 0, false); // Create unit based on map data
                 cells[i][j] = cell;
             }
         }
@@ -104,7 +137,7 @@ public class LevelManager : MonoBehaviour
         switch (cellType)
         {
             case CellType.Empty:
-                return CellEmpytyPrefab;
+                return CellEmptyPrefab;
             case CellType.Mountain:
                 return CellMountainPrefab;
             case CellType.Water:
@@ -172,35 +205,35 @@ public class LevelManager : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetKey(KeyCode.W)) // Move camera up
+        if (Input.GetKey(KeyCode.W)) // Move camera up
         {
             mainCamera.transform.position += Vector3.up * cameraSpeed * Time.deltaTime;
         }
-        if(Input.GetKey(KeyCode.S)) // Move camera down
+        if (Input.GetKey(KeyCode.S)) // Move camera down
         {
             mainCamera.transform.position += Vector3.down * cameraSpeed * Time.deltaTime;
         }
-        if(Input.GetKey(KeyCode.A)) // Move camera left
+        if (Input.GetKey(KeyCode.A)) // Move camera left
         {
             mainCamera.transform.position += Vector3.left * cameraSpeed * Time.deltaTime;
         }
-        if(Input.GetKey(KeyCode.D)) // Move camera right
+        if (Input.GetKey(KeyCode.D)) // Move camera right
         {
             mainCamera.transform.position += Vector3.right * cameraSpeed * Time.deltaTime;
         }
         //Clamp camera position to stay within the map bounds
-        float halfWidth = mainCamera.orthographicSize * ((float)Screen.width / Screen.height) / 2f;
-        float halfHeight = mainCamera.orthographicSize / 2f;
-        //mainCamera.transform.position = new Vector3(
-         //   Mathf.Clamp(mainCamera.transform.position.x, halfWidth, map.width - halfWidth),
-           // Mathf.Clamp(mainCamera.transform.position.y, halfHeight, map.height - halfHeight),
-          //  mainCamera.transform.position.z
-        //);
-        if(Input.GetAxis("Mouse ScrollWheel") > 0) // Zoom in
+        float halfWidth = mainCamera.orthographicSize * ((float)Screen.width / Screen.height);
+        float halfHeight = mainCamera.orthographicSize;
+        mainCamera.transform.position = new Vector3(
+            Mathf.Clamp(mainCamera.transform.position.x, 0, map.width),
+            Mathf.Clamp(mainCamera.transform.position.y, 0, map.height),
+            mainCamera.transform.position.z
+        );
+        if (Input.GetAxis("Mouse ScrollWheel") > 0) // Zoom in
         {
             mainCamera.orthographicSize -= cameraZoomSpeed * Time.deltaTime;
         }
-        if(Input.GetAxis("Mouse ScrollWheel") < 0) // Zoom out
+        if (Input.GetAxis("Mouse ScrollWheel") < 0) // Zoom out
         {
             mainCamera.orthographicSize += cameraZoomSpeed * Time.deltaTime;
         }
@@ -224,8 +257,19 @@ public class LevelManager : MonoBehaviour
         return adjacentCells;
     }
 
-    public void CreateUnit(UnitType unitType, Cell selectedCell, bool playerTurn)
+    public void CreateUnit(UnitType unitType, Cell selectedCell, bool playerTurn, bool moneyCost = true)
     {
+        if (moneyCost && !CanAffordUnit(unitType, playerTurn)) // Check if the player can afford the unit
+        {
+            Debug.Log("Not enough money to create unit!"); // Log a message if the player cannot afford the unit
+            return; // Exit the method if the player cannot afford the unit
+        }
+
+        if (selectedCell.isOccupied) // Check if the cell is already occupied
+        {
+            Debug.Log("Cell is already occupied!"); // Log a message if the cell is occupied
+            return; // Exit the method if the cell is occupied
+        }
         GameObject unitPrefab = GetUnitPrefab(unitType);
         if (unitPrefab != null && CanAffordUnit(unitType, playerTurn)) // Check if the unit prefab is found and if the player can afford the unit
         {
@@ -237,14 +281,18 @@ public class LevelManager : MonoBehaviour
             selectedCell.unit = unit; // Assign the unit to the cell
             unit.currentCell = selectedCell; // Set the unit's current cell reference
             unit.gameObject = unitObject; // Set the unit's GameObject reference
-            if(playerTurn)
+            unit.lastMoveTurn = currentTurn; // Set the last move turn for the unit
+            unit.lastActionTurn = currentTurn; // Set the last action turn for the unit
+            if (playerTurn)
             {
-                moneyPlayer -= unit.moneyCost; // Deduct the cost from the player's money
+                moneyPlayer -= moneyCost ? unit.moneyCost : 0; // Deduct the cost from the player's money
             }
             else
             {
-                moneyEnemy -= unit.moneyCost; // Deduct the cost from the enemy's money
-            } 
+                moneyEnemy -= moneyCost ? unit.moneyCost : 0; // Deduct the cost from the enemy's money
+                enemyUnits.Add(unit); // Add the unit to the enemy units list
+                unitObject.GetComponent<SpriteRenderer>().color = Color.red; // Set enemy unit color to red
+            }
         }
     }
 
@@ -265,13 +313,21 @@ public class LevelManager : MonoBehaviour
         unit.gameObject.transform.position = new Vector3(targetCell.x * cellSize, targetCell.y * cellSize + cellSize / 2, 0);
     }
 
-    public void AttackUnit(IUnit attacker, IUnit target)
+    public void AttackUnit(IUnit attacker, IUnit target, float multiplier = 1f)
     {
         if (attacker != null && target != null) // Check if both units are valid and the target cell is occupied
         {
-            attacker.Attack(target); // Apply damage to the target unit
+            if (target.playerUnit == attacker.playerUnit) // Check if the target unit is an enemy
+            {
+                Debug.Log("Cannot attack your own unit!"); // Log a message if the target is an ally
+                return; // Exit the method if the target is an ally
+            }
+            attacker.lastActionTurn = currentTurn; // Update the attacker's last action turn
+            attacker.Attack(target, multiplier); // Apply damage to the target unit
             if (target.health <= 0) // Check if the target unit is dead
             {
+                if (!target.playerUnit)
+                    enemyUnits.Remove(target); // Remove the target unit from the enemy units list
                 Destroy(target.gameObject); // Destroy the target unit's GameObject
                 target.currentCell.isOccupied = false; // Mark the cell as unoccupied
                 target.currentCell.unit = null; // Remove the unit from the cell
@@ -281,10 +337,28 @@ public class LevelManager : MonoBehaviour
 
     public void CaptureCell(Cell cell, bool playerTurn)
     {
-        if (cell.capturable) // Check if the cell is capturable
+        cell.ChangePlayer(playerTurn); // Change the cell's ownership
+        if (playerTurn && cell.cellType == CellType.Camp)
         {
-            cell.player = playerTurn; // Set the player flag based on the player's turn
-            cell.enemy = !playerTurn; // Set the enemy flag based on the player's turn
+            enemyCamps.Remove(cell); // Remove the camp from the enemy camps list
+        }
+        else if (!playerTurn && cell.cellType == CellType.Camp)
+        {
+            enemyCamps.Add(cell); // Add the camp to the enemy camps list
+        }
+
+        if(cell.cellType == CellType.Base)
+        {
+            if (playerTurn)
+            {
+                Debug.Log("Player captured the enemy base!"); // Log a message if the player captures the enemy base
+                //SceneManager.LoadScene("VictoryScene"); // Load the victory scene if the player captures the enemy base
+            }
+            else
+            {
+                Debug.Log("Enemy captured the player base!"); // Log a message if the enemy captures the player's base
+                //SceneManager.LoadScene("GameOverScene"); // Load the game over scene if the enemy captures the player's base
+            }
         }
     }
 
@@ -292,5 +366,98 @@ public class LevelManager : MonoBehaviour
     {
         currentTurn++; // Increment the turn number
     }
-        
+
+    public void ChangeState(ILevelState newState)
+    {
+        currentState.ExitState(); // Call the exit method of the current state
+        currentState = newState; // Change the current state to the new state
+        currentState.EnterState(); // Call the enter method of the new state
+    }
+
+    public List<Cell> GetAvailableMoveCells(Cell cell)
+    {
+        if (!cell.isOccupied)
+            return new List<Cell>(); // Return an empty list if the cell is empty
+
+        List<Cell> availableCells = new List<Cell>();
+        IUnit unit = cell.unit; // Get the unit in the cell
+        bool[,] visited = new bool[map.height, map.width]; // Create a 2D array to track visited cells
+        Queue<Cell> queue = new Queue<Cell>(); // Create a queue for BFS
+        queue.Enqueue(cell); // Enqueue the starting cell
+        queue.Enqueue(null); // Enqueue a null marker for the next level
+        int range = unit.movementRange; // Get the movement range of the unit
+        int steps = 0; // Initialize the step counter
+        while (queue.Count > 0)
+        {
+            Cell currentCell = queue.Dequeue();
+            if (currentCell == null)
+            {
+                steps++;
+                if (steps > range) break; // Si hemos alcanzado el rango de movimiento, salimos del bucle
+                queue.Enqueue(null); // Añadimos un marcador para el siguiente nivel
+                continue;
+            }
+
+            if (visited[currentCell.y, currentCell.x]) continue; // Si ya hemos visitado esta celda, la ignoramos
+            visited[currentCell.y, currentCell.x] = true; // Marcamos la celda como visitada
+
+            if (unit.unitType == UnitType.Heavy && currentCell.cellType == CellType.Mountain) continue; // Si la unidad es pesada y la celda es montaña, la ignoramos
+            if (steps != 0) availableCells.Add(currentCell); // Añadimos la celda a las celdas disponibles
+            if (currentCell.cellType == CellType.Mountain && steps != 0) continue; // Si la celda es montaña, no añadimos las celdas adyacentes
+
+            // Añadimos las celdas adyacentes a la cola
+            foreach (var adjacentCell in GetAdjacentCells(currentCell))
+            {
+                if (!visited[adjacentCell.y, adjacentCell.x] && !adjacentCell.isOccupied &&
+                 (unit.unitType == UnitType.Water && adjacentCell.cellType == CellType.Water ||
+                 (unit.unitType != UnitType.Water && adjacentCell.cellType != CellType.Water))) // Solo añadimos celdas no ocupadas y que no sean agua si la unidad no es de tipo acuática
+                {
+                    queue.Enqueue(adjacentCell);
+                }
+            }
+        }
+        return availableCells;
+    }
+
+    public List<Cell> GetAvailableAttackCells(Cell cell)
+    {
+        if (!cell.isOccupied)
+            return new List<Cell>(); // Return an empty list if the cell is empty
+
+        List<Cell> availableCells = new List<Cell>();
+        IUnit unit = cell.unit; // Get the unit in the cell
+        bool[,] visited = new bool[map.height, map.width]; // Create a 2D array to track visited cells
+        Queue<Cell> queue = new Queue<Cell>(); // Create a queue for BFS
+        queue.Enqueue(cell); // Enqueue the starting cell
+        queue.Enqueue(null); // Enqueue a null marker for the next level
+        int rangeMin = unit.minAttackRange; // Get the minimum attack range of the unit
+        int rangeMax = unit.maxAttackRange; // Get the maximum attack range of the unit
+        int steps = 0; // Initialize the step counter
+        while (queue.Count > 0)
+        {
+            Cell currentCell = queue.Dequeue();
+            if (currentCell == null)
+            {
+                steps++;
+                if (steps > rangeMax) break; // Si hemos alcanzado el rango de ataque, salimos del bucle
+                queue.Enqueue(null); // Añadimos un marcador para el siguiente nivel
+                continue;
+            }
+
+            if (visited[currentCell.y, currentCell.x]) continue; // Si ya hemos visitado esta celda, la ignoramos
+            visited[currentCell.y, currentCell.x] = true; // Marcamos la celda como visitada
+
+            if (steps >= rangeMin && currentCell.isOccupied && currentCell.unit.playerUnit != unit.playerUnit)
+                availableCells.Add(currentCell); // Añadimos la celda a las celdas disponibles
+
+            // Añadimos las celdas adyacentes a la cola
+            foreach (var adjacentCell in GetAdjacentCells(currentCell))
+            {
+                if (!visited[adjacentCell.y, adjacentCell.x])
+                    queue.Enqueue(adjacentCell);
+            }
+        }
+        return availableCells;
+    }
+
 }

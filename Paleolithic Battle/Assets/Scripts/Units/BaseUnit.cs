@@ -3,8 +3,10 @@ using UnityEngine;
 
 public class BaseUnit : MonoBehaviour, IUnit
 {
-    public int attackPower = 10;
-    public int defensePower = 5;
+    public float _attackPower = 10;
+    public float attackPower { get => _attackPower; set => _attackPower = value; } // Attack power of the unit
+    public float _defensePower = 5;
+    public float defensePower { get => _defensePower; set => _defensePower = value; } // Defense power of the unit
     [SerializeField] private int _movementRange = 3;
     public int movementRange { get => _movementRange; } // Movement range of the unit
 
@@ -18,7 +20,7 @@ public class BaseUnit : MonoBehaviour, IUnit
     GameObject IUnit.gameObject { get; set; } // Reference to the GameObject of the unit
 
     [SerializeField] private bool _playerUnit = true; // Indicates if the unit is a player unit
-    public bool playerUnit { get; set; }
+    public bool playerUnit { get => _playerUnit; set => _playerUnit = value; } // Indicates if the unit is a player unit
     [SerializeField] private float _health = 100f; // Health of the unit
     public float health { get => _health; set => _health = value; }
 
@@ -29,9 +31,6 @@ public class BaseUnit : MonoBehaviour, IUnit
     public int lastMoveTurn { get => _lastMoveTurn; set => _lastMoveTurn = value; } // Last turn the unit moved
     private int _lastActionTurn = -1; // Last turn the unit performed an action
     public int lastActionTurn { get => _lastActionTurn; set => _lastActionTurn = value; } // Last turn the unit performed an action
-
-    // Removed the redundant gameObject property to avoid conflict with the inherited member
-
     int x,y;
 
     public void Move(int newX, int newY)
@@ -41,16 +40,15 @@ public class BaseUnit : MonoBehaviour, IUnit
         // Add logic to update the unit's position on the grid
     }
 
-    public void Attack(IUnit target)
+    public void Attack(IUnit target, float multiplier)
     {
         if (target == null || !target.IsAlive())
         {
             Debug.Log("Target is null or not alive.");
             return;
         }
-
         // Calculate damage based on attack and defense power
-        int damage = Mathf.Max(0, attackPower);
+        float damage = Mathf.Max(0, attackPower * multiplier - target.defensePower);
         target.GetDamage(damage);
     }
 
@@ -70,7 +68,7 @@ public class BaseUnit : MonoBehaviour, IUnit
         return health > 0;
     }
 
-    public void GetDamage(int damage)
+    public void GetDamage(float damage)
     {
         health -= damage;
     }

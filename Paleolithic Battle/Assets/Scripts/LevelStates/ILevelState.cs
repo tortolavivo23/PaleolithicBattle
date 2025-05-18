@@ -7,6 +7,12 @@ public interface ILevelState
     void GoToPreviewMoveState();
     void GoToEnemyTurnState();
     void GoToMenuState();
-    void GoToAttackState();
+    void GoToPreviewAttackState();
     void GoToTrainState();
+
+    void ExitState();
+
+    void EnterState();
+
+    void GoToAttackState();
 }

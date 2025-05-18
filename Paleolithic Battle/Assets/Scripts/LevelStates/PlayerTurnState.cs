@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerTurnState : ILevelState
 {
@@ -7,21 +8,26 @@ public class PlayerTurnState : ILevelState
     public PlayerTurnState(LevelManager levelManager)
     {
         this.levelManager = levelManager;
+        levelManager.endTurnButton.onClick.AddListener(EndTurn); // Añadir el listener al botón de fin de turno
     }
 
-    public void GoToAttackState()
+    public void EndTurn(){
+        GoToEnemyTurnState(); // Cambiar al estado de turno del enemigo
+    }
+
+    public void GoToPreviewAttackState()
     {
         throw new System.NotImplementedException();
     }
 
     public void GoToEnemyTurnState()
     {
-        throw new System.NotImplementedException();
+        levelManager.ChangeState(levelManager.enemyTurnState); // Cambiamos el estado actual a EnemyTurnState
     }
 
     public void GoToMenuState()
     {
-        levelManager.currentState = levelManager.menuState;
+        levelManager.ChangeState(levelManager.menuState); // Cambiamos al estado de menú
     }
 
     public void GoToPlayerTurnState()
@@ -31,7 +37,7 @@ public class PlayerTurnState : ILevelState
 
     public void GoToPreviewMoveState()
     {
-        levelManager.currentState = levelManager.previewMoveState;
+        throw new System.NotImplementedException();
     }
 
     public void GoToTrainState()
@@ -49,13 +55,27 @@ public class PlayerTurnState : ILevelState
             if (hit.collider != null)
             {
                 Cell clickedCell = hit.collider.GetComponent<Cell>();
-                if (clickedCell != null && !(clickedCell.isOccupied && !clickedCell.unit.playerUnit) && (clickedCell.isOccupied || clickedCell.cellType == CellType.Camp && clickedCell.player))
+                if (clickedCell != null && (clickedCell.isOccupied && clickedCell.unit.playerUnit || clickedCell.cellType == CellType.Camp && clickedCell.player))
                 {
-                    // Aquí puedes manejar la lógica de selección de celda
-                    levelManager.menuState = new MenuState(levelManager, clickedCell); // Cambiamos al estado de menú
+                    // Aquí puedes manejar la lógica de selección de celdas
+                    levelManager.selectedCell = clickedCell; // Guardar la celda seleccionada
                     GoToMenuState();
                 }
             }
         }
+    }
+
+    public void EnterState(){
+        levelManager.endTurnButton.gameObject.SetActive(true); // Mostrar el botón de fin de turno
+    }
+
+    public void ExitState()
+    {
+        levelManager.endTurnButton.gameObject.SetActive(false); // Ocultar el botón de fin de turno
+    }
+
+    public void GoToAttackState()
+    {
+        throw new System.NotImplementedException();
     }
 }

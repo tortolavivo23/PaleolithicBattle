@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7522154039159837498
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2589154281986130257}
+  - component: {fileID: 3900957708146447395}
+  m_Layer: 0
+  m_Name: LevelManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2589154281986130257
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7522154039159837498}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.6190815, y: -6.458745, z: 3.92}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3900957708146447395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7522154039159837498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e4fa9856d9ff6248b19f1a3c7a8b166, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 0}
+  cameraSpeed: 5
+  cameraZoomSpeed: 100
+  minCameraSize: 5
+  maxCameraSize: 20
+  menu: {fileID: 0}
+  buttonPrefab: {fileID: 5541260561846562842, guid: 1a23d253f95991a438260c3e029d5442, type: 3}
+  map: {fileID: 11400000, guid: 1b6408f49dd3b504887f56e89e58d223, type: 2}
+  cellSize: 2.56
+  CellEmptyPrefab: {fileID: 2073936836860853317, guid: bc7aadc8ce26ed54aba3259f58d3ae5b, type: 3}
+  CellMountainPrefab: {fileID: 7602500378247519352, guid: 36cc3687c23a9db4f82e3d5be5f71085, type: 3}
+  CellWaterPrefab: {fileID: 0}
+  CellForestPrefab: {fileID: 7304074303810306815, guid: 35be69753d7eeb64c91fa92b59eeaf37, type: 3}
+  CellCavePrefab: {fileID: 0}
+  CellCampPrefab: {fileID: 765299445732641266, guid: d1a29b79d845f814388173a14ff57c81, type: 3}
+  CellBasePrefab: {fileID: 0}
+  UnitBasePrefab: {fileID: 2946679824803635572, guid: 24aca76218690a04e9a29deb2b8564cf, type: 3}
+  UnitEnemyBasePrefab: {fileID: 0}
+  UnitHeavyPrefab: {fileID: 0}
+  UnitEnemyHeavyPrefab: {fileID: 0}
+  UnitRangePrefab: {fileID: 0}
+  UnitEnemyRangePrefab: {fileID: 0}
+  moneyPlayer: 1000
+  moneyEnemy: 1000
+  unitTypes: 010000000300000002000000
+  currentTurn: 0
+  endTurnButton: {fileID: 0}
+  selectedCell: {fileID: 0}
+  minigameResult: 0
+  minigames:
+    names: []
+  enemyCamps: []

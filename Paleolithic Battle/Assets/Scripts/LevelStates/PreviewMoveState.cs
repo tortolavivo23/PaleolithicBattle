@@ -11,64 +11,35 @@ public class PreviewMoveState : ILevelState
     private IUnit selectedUnit; // La unidad seleccionada por el jugador
 
 
-    public PreviewMoveState(LevelManager levelManager, Cell selectedCell)
+    public PreviewMoveState(LevelManager levelManager)
     {
         this.levelManager = levelManager;
-        this.selectedCell = selectedCell;
-        Debug.Log("PreviewMoveState: " + selectedCell.name);
+        
+    }
+
+    public void EnterState()
+    {
+        selectedCell = levelManager.selectedCell; // Guardamos la celda seleccionada
         selectedUnit = selectedCell.unit; // Obtener la unidad de la celda seleccionada
-        availableCells = GetAvailableCells(selectedCell, selectedUnit); // Obtener las celdas disponibles para moverse
+        availableCells = levelManager.GetAvailableMoveCells(selectedCell); // Obtener las celdas disponibles para moverse
 
         foreach (var cell in availableCells)
         {
             cell.GetComponent<SpriteRenderer>().color = Color.green; // Cambiar el color de las celdas disponibles a verde
         }
         selectedCell.GetComponent<SpriteRenderer>().color = Color.red; // Cambiar el color de la celda seleccionada a rojo
-
-
     }
 
-    private List<Cell> GetAvailableCells(Cell selectedCell, IUnit selectedUnit)
+    public void ExitState()
     {
-        List<Cell> availableCells = new List<Cell>();
-        bool[,] visited = new bool[levelManager.map.height, levelManager.map.width];
-        Queue<Cell> queue = new Queue<Cell>();
-        queue.Enqueue(selectedCell);
-        queue.Enqueue(null);
-        int range = selectedUnit.movementRange; // Obtener el rango de movimiento de la unidad
-        int steps = 0; // Contador de pasos
-
-        while (queue.Count > 0)
+        foreach (var cell in availableCells)
         {
-            Cell currentCell = queue.Dequeue();
-            if (currentCell == null)
-            {
-                steps++;
-                if (steps > range) break; // Si hemos alcanzado el rango de movimiento, salimos del bucle
-                queue.Enqueue(null); // Añadimos un marcador para el siguiente nivel
-                continue;
-            }
-
-            if (visited[currentCell.y, currentCell.x]) continue; // Si ya hemos visitado esta celda, la ignoramos
-            visited[currentCell.y, currentCell.x] = true; // Marcamos la celda como visitada
-
-            if (selectedUnit.unitType == UnitType.Heavy && currentCell.cellType == CellType.Mountain) continue; // Si la unidad es pesada y la celda es montaña, la ignoramos
-            if(steps!=0) availableCells.Add(currentCell); // Añadimos la celda a las celdas disponibles
-            if(currentCell.cellType == CellType.Mountain && steps!=0) continue; // Si la celda es montaña, no añadimos las celdas adyacentes
-
-            // Añadimos las celdas adyacentes a la cola
-            foreach (var adjacentCell in levelManager.GetAdjacentCells(currentCell))
-            {
-                if (!visited[adjacentCell.y, adjacentCell.x] && !adjacentCell.isOccupied &&
-                 (selectedUnit.unitType == UnitType.Water && adjacentCell.cellType == CellType.Water || 
-                 (selectedUnit.unitType != UnitType.Water && adjacentCell.cellType != CellType.Water))) // Solo añadimos celdas no ocupadas y que no sean agua si la unidad no es de tipo acuática
-                {
-                    queue.Enqueue(adjacentCell);
-                }
-            }
+            cell.GetComponent<SpriteRenderer>().color = Color.white; // Restaurar el color original de las celdas disponibles
         }
-        return availableCells;
+        selectedCell.GetComponent<SpriteRenderer>().color = Color.white; // Restaurar el color original de la celda seleccionada
     }
+
+    
 
     public void GoToEnemyTurnState()
     {
@@ -77,12 +48,7 @@ public class PreviewMoveState : ILevelState
 
     public void GoToPlayerTurnState()
     {
-        foreach (var cell in availableCells)
-        {
-            cell.GetComponent<SpriteRenderer>().color = Color.white; // Restaurar el color original de las celdas disponibles
-        }
-        selectedCell.GetComponent<SpriteRenderer>().color = Color.white; // Restaurar el color original de la celda seleccionada
-        levelManager.currentState = levelManager.playerTurnState; // Cambiamos al estado de turno del jugador
+        levelManager.ChangeState(levelManager.playerTurnState); // Cambiamos el estado actual a PlayerTurnState
     }
 
     public void GoToPreviewMoveState()
@@ -105,6 +71,7 @@ public class PreviewMoveState : ILevelState
                     // Aquí puedes manejar la lógica de movimiento de la unidad
                     levelManager.MoveUnit(selectedUnit, clickedCell); // Mover la unidad a la celda seleccionada
                     selectedUnit.Move(clickedCell.x, clickedCell.y); // Mover la unidad a la celda seleccionada
+                    selectedUnit.lastMoveTurn = levelManager.currentTurn; // Actualizar el turno del ultimo movimiento
                 }
             }
             GoToPlayerTurnState(); // Volver al estado de turno del jugador
@@ -116,12 +83,17 @@ public class PreviewMoveState : ILevelState
         throw new System.NotImplementedException();
     }
 
-    public void GoToAttackState()
+    public void GoToPreviewAttackState()
     {
         throw new System.NotImplementedException();
     }
 
     public void GoToTrainState()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void GoToAttackState()
     {
         throw new System.NotImplementedException();
     }

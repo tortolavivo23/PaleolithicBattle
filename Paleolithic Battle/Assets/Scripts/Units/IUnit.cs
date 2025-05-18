@@ -2,6 +2,8 @@ using UnityEngine;
 
 public interface IUnit
 {
+    public float attackPower { get; set; }
+    public float defensePower { get; set; }
     public GameObject gameObject { get; set; }
 
     public UnitType unitType { get;}
@@ -19,8 +21,8 @@ public interface IUnit
 
     bool playerUnit { get; set; }
     void Move(int x, int y);
-    void Attack(IUnit target);
-    void GetDamage(int damage);
+    void Attack(IUnit target, float multiplier);
+    void GetDamage(float damage);
     void SetPosition(int x, int y);
     (int x, int y) GetPosition();
     bool IsAlive();
