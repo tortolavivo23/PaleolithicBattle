@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
@@ -47,8 +46,12 @@ public class LevelManager : MonoBehaviour
     [HideInInspector] public AttackState attackState;
 
 
-    public float moneyPlayer = 1000;
-    public float moneyEnemy = 1000;
+    public int moneyPlayer = 200;
+    public int moneyEnemy = 200;
+
+    public int moneyTurn = 50; // Money added each turn
+
+    public int moneyPerCave = 50; // Money added for each cave owned
 
     public UnitType[] unitTypes;
 
@@ -64,11 +67,18 @@ public class LevelManager : MonoBehaviour
     [HideInInspector] public List<IUnit> enemyUnits = new List<IUnit>();
     [HideInInspector] public List<Cell> enemyCamps = new List<Cell>();
 
+    [HideInInspector] public List<IUnit> playerUnits = new List<IUnit>();
+
+    private int cavePlayer = 0;
+    private int caveEnemy = 0;
+
+
     void Awake()
     {
         currentTurn = -1;
         InitializeMap();
-        mainCamera.transform.position = new Vector3(map.width / 2f, map.height / 2f, -10); // Center the camera on the map
+        mainCamera.transform.position = new Vector3(map.width / 2 * cellSize, map.height / 2 * cellSize, -10); // Center the camera on the map
+        mainCamera.orthographicSize = maxCameraSize; // Set the camera size to maximum
     }
     void Start()
     {
@@ -82,7 +92,6 @@ public class LevelManager : MonoBehaviour
         currentState = playerTurnState; // Start with player turn state
         minigames = JsonUtility.FromJson<Minigames>(Resources.Load<TextAsset>("minigames").text); // Load minigames data from JSON file
         currentTurn++;
-
     }
 
     private void InitializeMap()
@@ -108,16 +117,15 @@ public class LevelManager : MonoBehaviour
                         cell.spriteEnemy.SetActive(false); // Hide enemy sprite
                         cell.spriteNeutral.SetActive(false); // Hide neutral sprite
                         cell.spritePlayer.SetActive(true); // Show player sprite
+                        if (cell.cellType == CellType.Cave) cavePlayer++; // Increment player cave count
                     }
                     else if (cell.enemy)
                     {
                         cell.spritePlayer.SetActive(false); // Hide player sprite
                         cell.spriteNeutral.SetActive(false); // Hide neutral sprite
                         cell.spriteEnemy.SetActive(true); // Show enemy sprite
-                        if (cell.cellType == CellType.Camp)
-                        {
-                            enemyCamps.Add(cell); // Add enemy camp to the list
-                        }
+                        if (cell.cellType == CellType.Camp) enemyCamps.Add(cell);
+                        else if (cell.cellType == CellType.Cave) caveEnemy++; // Increment player cave count
                     }
                     else
                     {
@@ -205,42 +213,91 @@ public class LevelManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.W)) // Move camera up
-        {
-            mainCamera.transform.position += Vector3.up * cameraSpeed * Time.deltaTime;
-        }
-        if (Input.GetKey(KeyCode.S)) // Move camera down
-        {
-            mainCamera.transform.position += Vector3.down * cameraSpeed * Time.deltaTime;
-        }
-        if (Input.GetKey(KeyCode.A)) // Move camera left
-        {
-            mainCamera.transform.position += Vector3.left * cameraSpeed * Time.deltaTime;
-        }
-        if (Input.GetKey(KeyCode.D)) // Move camera right
-        {
-            mainCamera.transform.position += Vector3.right * cameraSpeed * Time.deltaTime;
-        }
-        //Clamp camera position to stay within the map bounds
-        float halfWidth = mainCamera.orthographicSize * ((float)Screen.width / Screen.height);
-        float halfHeight = mainCamera.orthographicSize;
-        mainCamera.transform.position = new Vector3(
-            Mathf.Clamp(mainCamera.transform.position.x, 0, map.width),
-            Mathf.Clamp(mainCamera.transform.position.y, 0, map.height),
-            mainCamera.transform.position.z
-        );
-        if (Input.GetAxis("Mouse ScrollWheel") > 0) // Zoom in
-        {
-            mainCamera.orthographicSize -= cameraZoomSpeed * Time.deltaTime;
-        }
-        if (Input.GetAxis("Mouse ScrollWheel") < 0) // Zoom out
-        {
-            mainCamera.orthographicSize += cameraZoomSpeed * Time.deltaTime;
-        }
-        mainCamera.orthographicSize = Mathf.Clamp(mainCamera.orthographicSize, minCameraSize, maxCameraSize); // Clamp camera size
-
+        ControlCamera(); // Control camera movement and zoom
         currentState.UpdateState();
     }
+
+    void ControlCamera()
+    {
+        HandleMovement();
+        HandleZoom();
+        ClampCamera();
+    }
+
+    void HandleMovement()
+    {
+        Vector3 direction = Vector3.zero;
+
+        if (Input.GetKey(KeyCode.W)) direction += Vector3.up;
+        if (Input.GetKey(KeyCode.S)) direction += Vector3.down;
+        if (Input.GetKey(KeyCode.A)) direction += Vector3.left;
+        if (Input.GetKey(KeyCode.D)) direction += Vector3.right;
+
+        mainCamera.transform.position += direction * cameraSpeed * Time.deltaTime;
+    }
+
+    void HandleZoom()
+    {
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (scroll != 0f)
+        {
+            mainCamera.orthographicSize -= scroll * cameraZoomSpeed * Time.deltaTime;
+            mainCamera.orthographicSize = Mathf.Clamp(mainCamera.orthographicSize, minCameraSize, maxCameraSize);
+        }
+    }
+
+    void ClampCamera()
+    {
+        float halfHeight = mainCamera.orthographicSize;
+        float halfWidth = halfHeight * ((float)Screen.width / Screen.height);
+
+        float minX = -cellSize / 2f;
+        float maxX = (map.width - 0.5f) * cellSize;
+        float minY = 0;
+        float maxY = map.height * cellSize;
+
+        float mapWidthWorld = maxX - minX;
+        float mapHeightWorld = maxY - minY;
+
+        Vector3 pos = mainCamera.transform.position;
+
+        if (mapWidthWorld <= halfWidth * 2f)
+        {
+            pos.x = (minX + maxX) / 2f;
+        }
+        else
+        {
+            pos.x = Mathf.Clamp(pos.x, minX + halfWidth, maxX - halfWidth);
+        }
+
+        if (mapHeightWorld <= halfHeight * 2f)
+        {
+            pos.y = (minY + maxY) / 2f;
+        }
+        else
+        {
+            pos.y = Mathf.Clamp(pos.y, minY + halfHeight, maxY - halfHeight);
+        }
+
+        mainCamera.transform.position = new Vector3(pos.x, pos.y, mainCamera.transform.position.z);
+    }
+
+    void OnDrawGizmos()
+    {
+        float minX = -cellSize / 2f;
+        float maxX = (map.width - 0.5f) * cellSize;
+        float minY = 0;
+        float maxY = map.height * cellSize;
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(new Vector3(minX, minY), new Vector3(maxX, minY));
+        Gizmos.DrawLine(new Vector3(maxX, minY), new Vector3(maxX, maxY));
+        Gizmos.DrawLine(new Vector3(maxX, maxY), new Vector3(minX, maxY));
+        Gizmos.DrawLine(new Vector3(minX, maxY), new Vector3(minX, minY));
+    }
+
+
+
 
     public List<Cell> GetAdjacentCells(Cell cell)
     {
@@ -286,6 +343,7 @@ public class LevelManager : MonoBehaviour
             if (playerTurn)
             {
                 moneyPlayer -= moneyCost ? unit.moneyCost : 0; // Deduct the cost from the player's money
+                playerUnits.Add(unit); // Add the unit to the player's units list
             }
             else
             {
@@ -326,8 +384,8 @@ public class LevelManager : MonoBehaviour
             attacker.Attack(target, multiplier); // Apply damage to the target unit
             if (target.health <= 0) // Check if the target unit is dead
             {
-                if (!target.playerUnit)
-                    enemyUnits.Remove(target); // Remove the target unit from the enemy units list
+                if (target.playerUnit) playerUnits.Remove(target); // Remove the target unit from the player's units list
+                else enemyUnits.Remove(target); // Remove the target unit from the enemy units list
                 Destroy(target.gameObject); // Destroy the target unit's GameObject
                 target.currentCell.isOccupied = false; // Mark the cell as unoccupied
                 target.currentCell.unit = null; // Remove the unit from the cell
@@ -337,34 +395,52 @@ public class LevelManager : MonoBehaviour
 
     public void CaptureCell(Cell cell, bool playerTurn)
     {
-        cell.ChangePlayer(playerTurn); // Change the cell's ownership
-        if (playerTurn && cell.cellType == CellType.Camp)
-        {
-            enemyCamps.Remove(cell); // Remove the camp from the enemy camps list
-        }
-        else if (!playerTurn && cell.cellType == CellType.Camp)
-        {
-            enemyCamps.Add(cell); // Add the camp to the enemy camps list
-        }
+        if (!cell.capturable) return; // Exit if the cell is not capturable
 
-        if(cell.cellType == CellType.Base)
+        switch (cell.cellType)
         {
-            if (playerTurn)
-            {
-                Debug.Log("Player captured the enemy base!"); // Log a message if the player captures the enemy base
-                //SceneManager.LoadScene("VictoryScene"); // Load the victory scene if the player captures the enemy base
-            }
-            else
-            {
-                Debug.Log("Enemy captured the player base!"); // Log a message if the enemy captures the player's base
-                //SceneManager.LoadScene("GameOverScene"); // Load the game over scene if the enemy captures the player's base
-            }
+            case CellType.Cave:
+                if (playerTurn)
+                {
+                    cavePlayer++; // Increment player cave count
+                    if (cell.enemy) caveEnemy--; // Decrement enemy cave count if the cell was owned by the enemy
+                }
+                else
+                {
+                    caveEnemy++; // Increment enemy cave count
+                    if (cell.player) cavePlayer--; // Decrement player cave count if the cell was owned by the player
+                }
+                break;
+            case CellType.Camp:
+                if (playerTurn) enemyCamps.Remove(cell); // Remove the camp from the enemy camps list
+                else enemyCamps.Add(cell); // Add the camp to the enemy camps list
+                break;
+            case CellType.Base:
+                if (playerTurn) // Check if the player is capturing the base
+                {
+                    Debug.Log("Player captured the enemy base!"); // Log a message if the player captures the enemy base
+                    //SceneManager.LoadScene("VictoryScene"); // Load the victory scene if the player captures the enemy base
+                }
+                else
+                {
+                    Debug.Log("Enemy captured the player base!"); // Log a message if the enemy captures the player's base
+                    //SceneManager.LoadScene("GameOverScene"); // Load the game over scene if the enemy captures the player's base
+                }
+                break;
+
         }
+        cell.ChangePlayer(playerTurn); // Change the cell's ownership
     }
 
     public void EndTurn()
     {
         currentTurn++; // Increment the turn number
+    }
+
+    public void AddMoney(bool playerTurn)
+    {
+        if (playerTurn) moneyPlayer += moneyTurn + (cavePlayer * moneyPerCave); // Add money to the player's account
+        else moneyEnemy += moneyTurn + (caveEnemy * moneyPerCave); // Add money to the enemy's account
     }
 
     public void ChangeState(ILevelState newState)
@@ -402,13 +478,13 @@ public class LevelManager : MonoBehaviour
             visited[currentCell.y, currentCell.x] = true; // Marcamos la celda como visitada
 
             if (unit.unitType == UnitType.Heavy && currentCell.cellType == CellType.Mountain) continue; // Si la unidad es pesada y la celda es montaña, la ignoramos
-            if (steps != 0) availableCells.Add(currentCell); // Añadimos la celda a las celdas disponibles
+            if (steps != 0 && !currentCell.isOccupied) availableCells.Add(currentCell); // Añadimos la celda a las celdas disponibles
             if (currentCell.cellType == CellType.Mountain && steps != 0) continue; // Si la celda es montaña, no añadimos las celdas adyacentes
 
             // Añadimos las celdas adyacentes a la cola
             foreach (var adjacentCell in GetAdjacentCells(currentCell))
             {
-                if (!visited[adjacentCell.y, adjacentCell.x] && !adjacentCell.isOccupied &&
+                if (!visited[adjacentCell.y, adjacentCell.x] && !(adjacentCell.isOccupied && !adjacentCell.unit.playerUnit) &&
                  (unit.unitType == UnitType.Water && adjacentCell.cellType == CellType.Water ||
                  (unit.unitType != UnitType.Water && adjacentCell.cellType != CellType.Water))) // Solo añadimos celdas no ocupadas y que no sean agua si la unidad no es de tipo acuática
                 {
@@ -458,6 +534,11 @@ public class LevelManager : MonoBehaviour
             }
         }
         return availableCells;
+    }
+
+    public int GetDistance(Cell cell1, Cell cell2)
+    {
+        return Mathf.Abs(cell1.x - cell2.x) + Mathf.Abs(cell1.y - cell2.y); // Distancia Manhattan
     }
 
 }

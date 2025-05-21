@@ -962,21 +962,41 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 519420031}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
+      propertyPath: moneyEnemy
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
+      propertyPath: cameraSpeed
+      value: 8.21
+      objectReference: {fileID: 0}
+    - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
+      propertyPath: moneyPlayer
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: endTurnButton
       value: 
       objectReference: {fileID: 1525119549}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
+      propertyPath: maxCameraSize
+      value: 12.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: CellBasePrefab
       value: 
-      objectReference: {fileID: 765299445732641266, guid: d1a29b79d845f814388173a14ff57c81, type: 3}
+      objectReference: {fileID: 765299445732641266, guid: fb0d1d32d87042e4584537f14135a5ce, type: 3}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: CellCavePrefab
       value: 
-      objectReference: {fileID: 765299445732641266, guid: d1a29b79d845f814388173a14ff57c81, type: 3}
+      objectReference: {fileID: 765299445732641266, guid: 5be71346618121a48a22f186c10b5f1e, type: 3}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: CellWaterPrefab
       value: 
       objectReference: {fileID: 4411193945290173196, guid: 3f9490a7eb780cf4f8f97ada3edcb6fc, type: 3}
+    - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
+      propertyPath: cameraZoomSpeed
+      value: 667.1
+      objectReference: {fileID: 0}
     - target: {fileID: 7522154039159837498, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: m_Name
       value: LevelManager

@@ -18,7 +18,7 @@ public class PreviewAttackState : ILevelState
     {
         cellSelected = levelManager.selectedCell;
 
-        availableCells = levelManager.GetAvailableAttackCells(cellSelected); // Obtener las celdas disponibles para atacar
+        availableCells = levelManager.menuState.attackCells; // Obtener las celdas disponibles para atacar
 
         foreach (var cell in availableCells)
         {
@@ -34,44 +34,6 @@ public class PreviewAttackState : ILevelState
         }
         cellSelected.GetComponent<SpriteRenderer>().color = Color.white; // Restaurar el color original de la celda seleccionada
     }
-
-    public List<Cell> GetAvailableCells(Cell selectedCell, IUnit selectedUnit)
-    {
-        List<Cell> availableCells = new List<Cell>();
-        bool[,] visited = new bool[levelManager.map.height, levelManager.map.width];
-        Queue<Cell> queue = new Queue<Cell>();
-        queue.Enqueue(selectedCell);
-        queue.Enqueue(null);
-        int rangeMin = selectedUnit.minAttackRange; // Obtener el rango de ataque de la unidad
-        int rangeMax = selectedUnit.maxAttackRange; // Obtener el rango de ataque de la unidad
-        int steps = 0; // Contador de pasos
-
-        while (queue.Count > 0)
-        {
-            Cell currentCell = queue.Dequeue();
-            if (currentCell == null)
-            {
-                steps++;
-                if (steps > rangeMax) break; // Si hemos alcanzado el rango de ataque, salimos del bucle
-                queue.Enqueue(null); // Añadimos un marcador para el siguiente nivel
-                continue;
-            }
-
-            if (visited[currentCell.y, currentCell.x]) continue; // Si ya hemos visitado esta celda, la ignoramos
-            visited[currentCell.y, currentCell.x] = true; // Marcamos la celda como visitada
-
-            if(steps>=rangeMin && currentCell.isOccupied && !currentCell.unit.playerUnit) availableCells.Add(currentCell); // Añadimos la celda a las celdas disponibles
-
-            // Añadimos las celdas adyacentes a la cola
-            foreach (var adjacentCell in levelManager.GetAdjacentCells(currentCell))
-            {
-                queue.Enqueue(adjacentCell);
-            }
-        }
-        return availableCells;
-    }
-
-
 
     public void GoToPreviewAttackState()
     {

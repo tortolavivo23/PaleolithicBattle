@@ -21,7 +21,11 @@ public class BaseUnit : MonoBehaviour, IUnit
 
     [SerializeField] private bool _playerUnit = true; // Indicates if the unit is a player unit
     public bool playerUnit { get => _playerUnit; set => _playerUnit = value; } // Indicates if the unit is a player unit
-    [SerializeField] private float _health = 100f; // Health of the unit
+
+    public float _maxHealth = 100; // Maximum health of the unit
+    public float maxHealth { get => _maxHealth; set => _maxHealth = value; } // Maximum health of the unit
+
+    private float _health;
     public float health { get => _health; set => _health = value; }
 
     [SerializeField] private int _moneyCost = 100; // Cost of the unit in money
@@ -32,6 +36,12 @@ public class BaseUnit : MonoBehaviour, IUnit
     private int _lastActionTurn = -1; // Last turn the unit performed an action
     public int lastActionTurn { get => _lastActionTurn; set => _lastActionTurn = value; } // Last turn the unit performed an action
     int x,y;
+
+    private void Start()
+    {
+        // Initialize unit properties
+        health = maxHealth;
+    }
 
     public void Move(int newX, int newY)
     {
@@ -71,16 +81,6 @@ public class BaseUnit : MonoBehaviour, IUnit
     public void GetDamage(float damage)
     {
         health -= damage;
-    }
-
-    private void Start()
-    {
-        // Initialize unit properties if needed
-    }
-
-    private void Update()
-    {
-        // Update unit properties if needed
     }
 }
 

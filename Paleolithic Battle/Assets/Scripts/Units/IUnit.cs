@@ -6,14 +6,16 @@ public interface IUnit
     public float defensePower { get; set; }
     public GameObject gameObject { get; set; }
 
-    public UnitType unitType { get;}
+    public UnitType unitType { get; }
     public Cell currentCell { get; set; }
-    public int movementRange { get;}
+    public int movementRange { get; }
 
-    public int moneyCost { get; set;}
-    
-    public int minAttackRange { get;}
-    public int maxAttackRange { get;}
+    public int moneyCost { get; set; }
+
+    public int minAttackRange { get; }
+    public int maxAttackRange { get; }
+
+    public float maxHealth { get; set; }
     public float health { get; set; }
 
     public int lastMoveTurn { get; set; }
@@ -26,4 +28,9 @@ public interface IUnit
     void SetPosition(int x, int y);
     (int x, int y) GetPosition();
     bool IsAlive();
+    
+    public bool CanKill(IUnit target)
+    {
+        return target.health + target.defensePower <= attackPower;
+    }
 }

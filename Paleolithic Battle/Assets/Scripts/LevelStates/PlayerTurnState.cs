@@ -22,6 +22,7 @@ public class PlayerTurnState : ILevelState
 
     public void GoToEnemyTurnState()
     {
+        levelManager.AddMoney(false); // Añadir dinero al enemigo
         levelManager.ChangeState(levelManager.enemyTurnState); // Cambiamos el estado actual a EnemyTurnState
     }
 

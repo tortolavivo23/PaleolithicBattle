@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -10,6 +11,9 @@ public class MenuState : ILevelState
     private Cell selectedCell; // Celda seleccionada por el jugador
 
     private int buttonCount = 0; // Contador de botones creados
+    
+    public List<Cell> availableCells = new List<Cell>(); // Lista de celdas disponibles para moverse
+    public List<Cell> attackCells = new List<Cell>(); // Lista de celdas disponibles para atacar
 
 
 
@@ -17,7 +21,7 @@ public class MenuState : ILevelState
     {
         this.levelManager = levelManager;
         menuUI = levelManager.menu;
-        
+
     }
 
     public void EnterState()
@@ -36,10 +40,13 @@ public class MenuState : ILevelState
             IUnit unit = selectedCell.unit; // Obtenemos la unidad de la celda seleccionada
             if(unit.lastActionTurn < levelManager.currentTurn) // Si la unidad no ha actuado en este turno
             {
-                CreateButton("Attack", () => GoToPreviewAttackState()); // Opción de atacar
+                unit.gameObject.GetComponent<SpriteRenderer>().color = Color.green;
+                availableCells = levelManager.GetAvailableMoveCells(selectedCell); // Obtenemos las celdas disponibles para moverse
+                attackCells = levelManager.GetAvailableAttackCells(selectedCell); // Obtenemos las celdas disponibles para atacar
+                if(attackCells.Count > 0) CreateButton("Attack", () => GoToPreviewAttackState()); // Opción de atacar
                 if(selectedCell.capturable && !selectedCell.player)
                     CreateButton("Capture", () => CaptureCell()); // Opción de capturar la celda
-                if (unit.lastMoveTurn < levelManager.currentTurn) // Si la unidad no se ha movido en este turno
+                if (unit.lastMoveTurn < levelManager.currentTurn && availableCells.Count > 0)
                     CreateButton("Move", () => GoToPreviewMoveState()); // Opción de mover a la celda seleccionada
             }
         }
@@ -47,7 +54,8 @@ public class MenuState : ILevelState
         {
             CreateButton("Train", () => GoToTrainState());
         }
-        CreateButton("Close", () => GoToPlayerTurnState()); // Opción de cerrar el menú y volver al turno del jugador
+        if (buttonCount == 0) GoToPlayerTurnState(); // Si no hay botones, volver al turno del jugador
+        else CreateButton("Close", () => GoToPlayerTurnState()); // Opción de cerrar el menú y volver al turno del jugador
     }
 
     public void ExitState()
@@ -55,6 +63,11 @@ public class MenuState : ILevelState
         foreach (Transform child in menuUI.transform) // Limpiar el menú de botones anteriores
         {
             Object.Destroy(child.gameObject);
+        }
+        if (selectedCell.isOccupied) // Si la celda está ocupada, restaurar el color de la unidad
+        {
+            IUnit unit = selectedCell.unit; // Obtenemos la unidad de la celda seleccionada
+            unit.gameObject.GetComponent<SpriteRenderer>().color = Color.white;
         }
         menuUI.SetActive(false); // Ocultar el menú
     }

@@ -6,7 +6,7 @@ public class MinigameTicTacToe : MonoBehaviour
 {
     public Camera cam;
     LevelManager levelManager;
-    public TextMeshProUGUI textInstructions;
+    public GameObject textInstructions;
     public float timeInstructions = 0.5f; // Tiempo para mostrar las instrucciones
     public float timeLimit = 3f; // Tiempo límite para completar el minijuego
     public TimeBar timeBar; // Referencia al script TimeBar
@@ -38,6 +38,8 @@ public class MinigameTicTacToe : MonoBehaviour
         }
     };
 
+    bool gameStarted = false; // Variable para controlar si el juego ha comenzado
+
     void Start()
     {
         levelManager = FindFirstObjectByType<LevelManager>();
@@ -46,6 +48,13 @@ public class MinigameTicTacToe : MonoBehaviour
         timeBar.SetMaxTime(timeLimit); // Establecer el tiempo máximo en la barra de tiempo
         timeRemaining = timeLimit; // Inicializar el tiempo restante
 
+        
+    }
+
+    void HideInstructions()
+    {
+        textInstructions.gameObject.SetActive(false);
+        gameStarted = true; // Cambiar el estado del juego a iniciado
         int randomBoard = Random.Range(0, 4); // Seleccionar un tablero aleatorio
         Debug.Log("Tablero aleatorio: " + randomBoard);
         for (int i = 0; i < 3; i++)
@@ -74,13 +83,9 @@ public class MinigameTicTacToe : MonoBehaviour
         }
     }
 
-    void HideInstructions()
-    {
-        textInstructions.gameObject.SetActive(false);
-    }
-
     void Update()
     {
+        if (!gameStarted) return; // Si el juego no ha comenzado, no hacer nada
         timeRemaining -= Time.deltaTime; // Reducir el tiempo restante
         timeBar.SetTime(timeRemaining); // Actualizar la barra de tiempo
         if (timeRemaining <= 0)

@@ -21,7 +21,7 @@ public class PreviewMoveState : ILevelState
     {
         selectedCell = levelManager.selectedCell; // Guardamos la celda seleccionada
         selectedUnit = selectedCell.unit; // Obtener la unidad de la celda seleccionada
-        availableCells = levelManager.GetAvailableMoveCells(selectedCell); // Obtener las celdas disponibles para moverse
+        availableCells = levelManager.menuState.availableCells; // Obtener las celdas disponibles para moverse
 
         foreach (var cell in availableCells)
         {

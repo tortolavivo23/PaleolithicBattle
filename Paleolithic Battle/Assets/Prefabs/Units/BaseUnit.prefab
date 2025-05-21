@@ -100,11 +100,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 956cab0c19dc83844a5c379a4f2217fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackPower: 10
-  defensePower: 5
+  _attackPower: 10
+  _defensePower: 5
   _movementRange: 3
   _minAttackRange: 1
   _maxAttackRange: 1
   _playerUnit: 1
-  _health: 10
+  _maxHealth: 10
   _moneyCost: 100
