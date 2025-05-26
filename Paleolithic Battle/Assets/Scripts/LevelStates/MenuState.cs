@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class MenuState : ILevelState
@@ -17,11 +15,11 @@ public class MenuState : ILevelState
     public List<Cell> attackCells = new List<Cell>(); // Lista de celdas disponibles para atacar
 
 
-
     public MenuState(LevelManager levelManager)
     {
         this.levelManager = levelManager;
         menuUI = levelManager.menu;
+        buttonPrefab = levelManager.buttonPrefab;
 
     }
 
@@ -33,7 +31,7 @@ public class MenuState : ILevelState
             Object.Destroy(child.gameObject);
         }
         menuUI.SetActive(true);
-        buttonPrefab = levelManager.buttonPrefab;
+        
         selectedCell = levelManager.selectedCell; // Guardamos la celda seleccionada
 
         if(selectedCell.isOccupied) // Si la celda está ocupada, mostramos las opciones de ataque
