@@ -18,12 +18,14 @@ public class AttackState : ILevelState
     {
         selectedUnit = levelManager.selectedCell.unit; // Obtener la unidad seleccionada
         levelManager.minigameResult = 0;
+        levelManager.moneyText.enabled = false; // Desactivar el texto de dinero
         minigameName = levelManager.minigames.RandomMinigame(); // Obtener un minijuego aleatorio
         SceneManager.LoadScene(minigameName, LoadSceneMode.Additive); // Cargar la escena de ataque
     }
 
     public void ExitState()
     {
+        levelManager.moneyText.enabled = true; // Activar el texto de dinero
         SceneManager.UnloadSceneAsync(minigameName); // Descargar la escena del minijuego
     }
 

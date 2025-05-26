@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -72,6 +73,8 @@ public class LevelManager : MonoBehaviour
     private int cavePlayer = 0;
     private int caveEnemy = 0;
 
+    public TextMeshProUGUI moneyText; // Reference to the money text UI element
+
 
     void Awake()
     {
@@ -92,6 +95,7 @@ public class LevelManager : MonoBehaviour
         currentState = playerTurnState; // Start with player turn state
         minigames = JsonUtility.FromJson<Minigames>(Resources.Load<TextAsset>("minigames").text); // Load minigames data from JSON file
         currentTurn++;
+        moneyText.text = "Money: " + moneyPlayer; // Update the money text UI element
     }
 
     private void InitializeMap()
@@ -163,35 +167,41 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private GameObject GetUnitPrefab(UnitType unitType)
+    private GameObject GetUnitPrefab(UnitType unitType, bool player = true)
     {
         switch (unitType)
         {
             case UnitType.Base:
-                return UnitBasePrefab;
+                if (player) return UnitBasePrefab;
+                else return UnitEnemyBasePrefab;
             case UnitType.Heavy:
-                return UnitHeavyPrefab;
+            {
+                Debug.Log("UnitType: " + unitType + ", Player: " + player);
+                if (player) return UnitHeavyPrefab;
+                    else return UnitEnemyHeavyPrefab;
+            }
             case UnitType.Range:
-                return UnitRangePrefab;
+                if (player) return UnitRangePrefab;
+                else return UnitEnemyRangePrefab;
             default:
                 return null;
         }
     }
 
-    public bool CanAffordUnit(UnitType unitType, bool canPlayerTurn)
+    public bool CanAffordUnit(UnitType unitType, bool playerTurn)
     {
-        if (canPlayerTurn)
+        if (playerTurn)
         {
             return CanAffordUnit(unitType, moneyPlayer);
         }
         else
         {
-            return CanAffordUnit(unitType, moneyEnemy);
+            return CanAffordUnit(unitType, moneyEnemy, playerTurn);
         }
     }
-    private bool CanAffordUnit(UnitType unitType, float money)
+    private bool CanAffordUnit(UnitType unitType,  float money, bool playerTurn = true)
     {
-        GameObject unitPrefab = GetUnitPrefab(unitType);
+        GameObject unitPrefab = GetUnitPrefab(unitType, playerTurn);
         if (unitPrefab != null)
         {
             IUnit unit = unitPrefab.GetComponent<IUnit>();
@@ -316,7 +326,7 @@ public class LevelManager : MonoBehaviour
 
     public void CreateUnit(UnitType unitType, Cell selectedCell, bool playerTurn, bool moneyCost = true)
     {
-        if (moneyCost && !CanAffordUnit(unitType, playerTurn)) // Check if the player can afford the unit
+        if (! (!moneyCost || CanAffordUnit(unitType, playerTurn))) // Check if the player can afford the unit
         {
             Debug.Log("Not enough money to create unit!"); // Log a message if the player cannot afford the unit
             return; // Exit the method if the player cannot afford the unit
@@ -327,12 +337,14 @@ public class LevelManager : MonoBehaviour
             Debug.Log("Cell is already occupied!"); // Log a message if the cell is occupied
             return; // Exit the method if the cell is occupied
         }
-        GameObject unitPrefab = GetUnitPrefab(unitType);
-        if (unitPrefab != null && CanAffordUnit(unitType, playerTurn)) // Check if the unit prefab is found and if the player can afford the unit
+        GameObject unitPrefab = GetUnitPrefab(unitType, playerTurn); // Get the unit prefab based on the unit type and player turn
+        if (unitPrefab != null) // Check if the unit prefab is found and if the player can afford the unit
         {
+            Debug.Log("Creating unit: " + unitType + " at cell: " + selectedCell.x + ", " + selectedCell.y); // Log the unit creation
             GameObject unitObject = Instantiate(unitPrefab, new Vector3(selectedCell.x * cellSize, selectedCell.y * cellSize + cellSize / 2, 0), Quaternion.identity);
             IUnit unit = unitObject.GetComponent<IUnit>();
             unit.SetPosition(selectedCell.x, selectedCell.y); // Set the unit's position
+            unit.SetPhysicalPosition(new Vector2(selectedCell.x * cellSize, selectedCell.y * cellSize + cellSize / 2)); // Set the unit's physical position
             unit.playerUnit = playerTurn; // Set the player unit flag based on the player's turn
             selectedCell.isOccupied = true; // Mark the cell as occupied
             selectedCell.unit = unit; // Assign the unit to the cell
@@ -343,19 +355,24 @@ public class LevelManager : MonoBehaviour
             if (playerTurn)
             {
                 moneyPlayer -= moneyCost ? unit.moneyCost : 0; // Deduct the cost from the player's money
+                moneyText.text = "Money: " + moneyPlayer; // Update the money text UI element
                 playerUnits.Add(unit); // Add the unit to the player's units list
             }
             else
             {
                 moneyEnemy -= moneyCost ? unit.moneyCost : 0; // Deduct the cost from the enemy's money
                 enemyUnits.Add(unit); // Add the unit to the enemy units list
-                unitObject.GetComponent<SpriteRenderer>().color = Color.red; // Set enemy unit color to red
             }
         }
     }
 
-    public void MoveUnit(IUnit unit, Cell targetCell)
+    public void MoveUnit(IUnit unit, Cell targetCell, Dictionary<Cell, Cell> availableCells = null)
     {
+        if(targetCell == null || targetCell.isOccupied || targetCell.unit != null) // Check if the target cell is valid and not occupied by another unit
+        {
+            Debug.Log("Invalid target cell for movement!"); // Log a message if the target cell is invalid
+            return; // Exit the method if the target cell is invalid
+        }
         if (unit.currentCell != null)
         {
             unit.currentCell.isOccupied = false; // Mark the current cell as unoccupied
@@ -367,8 +384,32 @@ public class LevelManager : MonoBehaviour
         targetCell.unit = unit; // Assign the unit to the target cell
         unit.currentCell = targetCell; // Update the unit's current cell reference
 
-        // Move the unit's GameObject to the new position
-        unit.gameObject.transform.position = new Vector3(targetCell.x * cellSize, targetCell.y * cellSize + cellSize / 2, 0);
+        if (availableCells != null) // If available cells are provided, update the path
+        {
+            if (availableCells.TryGetValue(targetCell, out Cell previousCell))
+            {
+                LinkedList<Vector2> path = new LinkedList<Vector2>();
+                Cell currentCell = targetCell;
+                while (currentCell != null)
+                {
+                    path.AddFirst(new Vector2(currentCell.x * cellSize, currentCell.y * cellSize + cellSize / 2));
+                    if (availableCells.TryGetValue(currentCell, out Cell prevCell))
+                    {
+                        currentCell = prevCell; // Move to the previous cell in the path
+                    }
+                    else
+                    {
+                        currentCell = null; // No previous cell found, end the path
+                    }
+                }
+                Debug.Log("Path found for unit: " + unit.unitType + " with length: " + path.Count);
+                unit.SetPath(new List<Vector2>(path)); // Set the unit's path
+            }
+        }
+        else {
+            // Move the unit's GameObject to the new position
+            unit.SetPhysicalPosition(new Vector2(targetCell.x * cellSize, targetCell.y * cellSize + cellSize / 2));
+        }
     }
 
     public void AttackUnit(IUnit attacker, IUnit target, float multiplier = 1f)
@@ -439,7 +480,11 @@ public class LevelManager : MonoBehaviour
 
     public void AddMoney(bool playerTurn)
     {
-        if (playerTurn) moneyPlayer += moneyTurn + (cavePlayer * moneyPerCave); // Add money to the player's account
+        if (playerTurn)
+        {
+            moneyPlayer += moneyTurn + (cavePlayer * moneyPerCave); // Add money to the player's account
+            moneyText.text = "Money: " + moneyPlayer; // Update the money text UI element
+        }
         else moneyEnemy += moneyTurn + (caveEnemy * moneyPerCave); // Add money to the enemy's account
     }
 
@@ -450,27 +495,28 @@ public class LevelManager : MonoBehaviour
         currentState.EnterState(); // Call the enter method of the new state
     }
 
-    public List<Cell> GetAvailableMoveCells(Cell cell)
+    public Dictionary<Cell, Cell> GetAvailableMoveCells(Cell cell)
     {
         if (!cell.isOccupied)
-            return new List<Cell>(); // Return an empty list if the cell is empty
+            return new Dictionary<Cell, Cell>();
 
-        List<Cell> availableCells = new List<Cell>();
-        IUnit unit = cell.unit; // Get the unit in the cell
+        Dictionary<Cell, Cell> availableCells = new Dictionary<Cell, Cell>();
         bool[,] visited = new bool[map.height, map.width]; // Create a 2D array to track visited cells
-        Queue<Cell> queue = new Queue<Cell>(); // Create a queue for BFS
-        queue.Enqueue(cell); // Enqueue the starting cell
-        queue.Enqueue(null); // Enqueue a null marker for the next level
+        IUnit unit = cell.unit; // Get the unit in the cell
+        Queue<(Cell, Cell)> queue = new Queue<(Cell, Cell)>(); // Create a queue for BFS
+        queue.Enqueue((cell, cell)); // Enqueue the starting cell
+        queue.Enqueue((null, null)); // Enqueue a null marker for the next level
         int range = unit.movementRange; // Get the movement range of the unit
         int steps = 0; // Initialize the step counter
         while (queue.Count > 0)
         {
-            Cell currentCell = queue.Dequeue();
+            (Cell, Cell) cellTuplex = queue.Dequeue();
+            Cell currentCell = cellTuplex.Item1; // Get the current cell from the tuple
             if (currentCell == null)
             {
                 steps++;
                 if (steps > range) break; // Si hemos alcanzado el rango de movimiento, salimos del bucle
-                queue.Enqueue(null); // Añadimos un marcador para el siguiente nivel
+                queue.Enqueue((null, null)); // Añadimos un marcador para el siguiente nivel
                 continue;
             }
 
@@ -478,17 +524,17 @@ public class LevelManager : MonoBehaviour
             visited[currentCell.y, currentCell.x] = true; // Marcamos la celda como visitada
 
             if (unit.unitType == UnitType.Heavy && currentCell.cellType == CellType.Mountain) continue; // Si la unidad es pesada y la celda es montaña, la ignoramos
-            if (steps != 0 && !currentCell.isOccupied) availableCells.Add(currentCell); // Añadimos la celda a las celdas disponibles
+            if (steps != 0) availableCells.Add(currentCell, cellTuplex.Item2); // Añadimos la celda a las celdas disponibles
             if (currentCell.cellType == CellType.Mountain && steps != 0) continue; // Si la celda es montaña, no añadimos las celdas adyacentes
 
             // Añadimos las celdas adyacentes a la cola
             foreach (var adjacentCell in GetAdjacentCells(currentCell))
             {
-                if (!visited[adjacentCell.y, adjacentCell.x] && !(adjacentCell.isOccupied && !adjacentCell.unit.playerUnit) &&
+                if (!visited[adjacentCell.y, adjacentCell.x] && !(adjacentCell.isOccupied && adjacentCell.unit.playerUnit != unit.playerUnit) &&
                  (unit.unitType == UnitType.Water && adjacentCell.cellType == CellType.Water ||
                  (unit.unitType != UnitType.Water && adjacentCell.cellType != CellType.Water))) // Solo añadimos celdas no ocupadas y que no sean agua si la unidad no es de tipo acuática
                 {
-                    queue.Enqueue(adjacentCell);
+                    queue.Enqueue((adjacentCell, currentCell));
                 }
             }
         }

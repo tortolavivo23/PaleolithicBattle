@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a9e87945dd182b43b86c5aa83a3c3b6, type: 3}
+  m_Name: TypeWriterScriptableObject
+  m_EditorClassIdentifier: 
+  Messages:
+  - currentMsg: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
+      et massa et magna efficitur elementum ut vitae mauris. In id eros mollis, consequat
+      dolor vel, blandit urna. Maecenas vel egestas enim. Integer sagittis lacus
+      sed nulla cursus, eget tincidunt mauris tempus. Mauris ac mi id velit hendrerit
+      scelerisque non eu elit. Praesent id urna eget ante aliquam lobortis. Praesent
+      vehicula ornare turpis. In blandit turpis id risus semper lacinia. '
+  - currentMsg: 'Morbi iaculis pulvinar condimentum. Maecenas risus tortor, sodales
+      eget suscipit a, vulputate vel risus. Duis tristique tincidunt enim, eu dictum
+      leo ornare ac. Nunc at lacus at neque placerat accumsan in et dui. Etiam at
+      dapibus sem, ac placerat lectus. Etiam sollicitudin sollicitudin libero ac
+      congue. Proin venenatis urna orci, id sagittis lectus egestas vitae. Vestibulum
+      hendrerit leo eget convallis feugiat. Aliquam mi arcu, mollis sit amet molestie
+      nec, fringilla at diam. Interdum et malesuada fames ac ante ipsum primis in
+      faucibus. Quisque non viverra sem. Nullam ac enim ullamcorper, gravida nulla
+      sit amet, iaculis lectus. Pellentesque eu enim finibus, lacinia magna et, rhoncus
+      orci. Sed convallis, nisl nec gravida commodo, nunc purus posuere mauris, id
+      sodales sapien ipsum a nulla. Sed lacinia lobortis facilisis. Donec at blandit
+      ex. '

@@ -83,7 +83,7 @@ public class TrainState : ILevelState
         switch (unitType)
         {
             case UnitType.Base:
-                return "Base";
+                return "Melee";
             case UnitType.Range:
                 return "Range";
             case UnitType.Heavy:

@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemyTurnState : ILevelState
@@ -15,16 +17,7 @@ public class EnemyTurnState : ILevelState
     {
         foreach (var unit in levelManager.enemyUnits)
         {
-            MoveEnemyUnit(unit);
-
-            if (unit.currentCell.capturable && !unit.currentCell.enemy)
-            {
-                levelManager.CaptureCell(unit.currentCell, false);
-            }
-            else
-            {
-                AttackEnemyUnit(unit);
-            }
+            levelManager.StartCoroutine(UnitTurn(unit));
         }
 
         foreach (var camp in levelManager.enemyCamps)
@@ -36,17 +29,32 @@ public class EnemyTurnState : ILevelState
         GoToPlayerTurnState();
     }
 
+    IEnumerator UnitTurn(IUnit unit)
+    {
+        MoveEnemyUnit(unit);
+        yield return new WaitForSeconds(0.5f); // Esperar un poco antes de la siguiente acción
+
+        if (unit.currentCell.capturable && !unit.currentCell.enemy)
+        {
+            levelManager.CaptureCell(unit.currentCell, false);
+        }
+        else
+        {
+            AttackEnemyUnit(unit);
+        }
+    }
+
     private void MoveEnemyUnit(IUnit unit)
     {
-        List<Cell> availableCells = levelManager.GetAvailableMoveCells(unit.currentCell);
+        Dictionary<Cell, Cell> availableCells = levelManager.GetAvailableMoveCells(unit.currentCell);
         if (availableCells.Count == 0) return;
 
-        Cell bestCell = availableCells
+        Cell bestCell = availableCells.Keys
             .OrderByDescending(cell => EvaluateMoveCell(unit, cell))
             .FirstOrDefault();
 
         if (bestCell != null)
-            levelManager.MoveUnit(unit, bestCell);
+            levelManager.MoveUnit(unit, bestCell, availableCells);
     }
 
     private void AttackEnemyUnit(IUnit unit)

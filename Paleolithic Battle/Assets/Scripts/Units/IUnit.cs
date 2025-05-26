@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public interface IUnit
@@ -27,6 +28,10 @@ public interface IUnit
     void GetDamage(float damage);
     void SetPosition(int x, int y);
     (int x, int y) GetPosition();
+
+    void SetPhysicalPosition(Vector2 position);
+
+    void SetPath(List<Vector2> path);
     bool IsAlive();
     
     public bool CanKill(IUnit target)

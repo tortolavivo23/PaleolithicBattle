@@ -7,7 +7,7 @@ public class PreviewMoveState : ILevelState
     private LevelManager levelManager;
 
     private Cell selectedCell; // La celda seleccionada por el jugador
-    private List<Cell> availableCells; // Las celdas disponibles para moverse
+    private Dictionary<Cell, Cell> availableCells; // Las celdas disponibles para moverse
     private IUnit selectedUnit; // La unidad seleccionada por el jugador
 
 
@@ -23,16 +23,16 @@ public class PreviewMoveState : ILevelState
         selectedUnit = selectedCell.unit; // Obtener la unidad de la celda seleccionada
         availableCells = levelManager.menuState.availableCells; // Obtener las celdas disponibles para moverse
 
-        foreach (var cell in availableCells)
+        foreach (var cell in availableCells.Keys)
         {
-            cell.GetComponent<SpriteRenderer>().color = Color.green; // Cambiar el color de las celdas disponibles a verde
+            if(!cell.isOccupied) cell.GetComponent<SpriteRenderer>().color = Color.green; // Cambiar el color de las celdas disponibles a verde
         }
         selectedCell.GetComponent<SpriteRenderer>().color = Color.red; // Cambiar el color de la celda seleccionada a rojo
     }
 
     public void ExitState()
     {
-        foreach (var cell in availableCells)
+        foreach (var cell in availableCells.Keys)
         {
             cell.GetComponent<SpriteRenderer>().color = Color.white; // Restaurar el color original de las celdas disponibles
         }
@@ -66,10 +66,10 @@ public class PreviewMoveState : ILevelState
             if (hit.collider != null)
             {
                 Cell clickedCell = hit.collider.GetComponent<Cell>();
-                if (clickedCell != null && availableCells.Contains(clickedCell))
+                if (clickedCell != null && availableCells.ContainsKey(clickedCell) && !clickedCell.isOccupied)
                 {
                     // Aquí puedes manejar la lógica de movimiento de la unidad
-                    levelManager.MoveUnit(selectedUnit, clickedCell); // Mover la unidad a la celda seleccionada
+                    levelManager.MoveUnit(selectedUnit, clickedCell, availableCells); // Mover la unidad a la celda seleccionada
                     selectedUnit.Move(clickedCell.x, clickedCell.y); // Mover la unidad a la celda seleccionada
                     selectedUnit.lastMoveTurn = levelManager.currentTurn; // Actualizar el turno del ultimo movimiento
                 }

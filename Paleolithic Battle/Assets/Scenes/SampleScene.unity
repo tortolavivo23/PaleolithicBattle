@@ -947,13 +947,15 @@ MonoBehaviour:
   CellCampPrefab: {fileID: 765299445732641266, guid: d1a29b79d845f814388173a14ff57c81, type: 3}
   CellBasePrefab: {fileID: 0}
   UnitBasePrefab: {fileID: 2946679824803635572, guid: 24aca76218690a04e9a29deb2b8564cf, type: 3}
-  UnitEnemyBasePrefab: {fileID: 0}
-  UnitHeavyPrefab: {fileID: 0}
-  UnitEnemyHeavyPrefab: {fileID: 0}
+  UnitEnemyBasePrefab: {fileID: 2946679824803635572, guid: 851a43412efa77142a24112156a888e1, type: 3}
+  UnitHeavyPrefab: {fileID: 2946679824803635572, guid: ac7bd2e656afebb448050b532cb0a22f, type: 3}
+  UnitEnemyHeavyPrefab: {fileID: 2946679824803635572, guid: 203022a0c67aa544b8bb580a3ee4e309, type: 3}
   UnitRangePrefab: {fileID: 0}
   UnitEnemyRangePrefab: {fileID: 0}
   moneyPlayer: 1000
   moneyEnemy: 1000
+  moneyTurn: 50
+  moneyPerCave: 50
   unitTypes: 010000000300000002000000
   currentTurn: 0
   endTurnButton: {fileID: 1525119549}

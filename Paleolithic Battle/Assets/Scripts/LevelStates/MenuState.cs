@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MenuState : ILevelState
@@ -12,7 +13,7 @@ public class MenuState : ILevelState
 
     private int buttonCount = 0; // Contador de botones creados
     
-    public List<Cell> availableCells = new List<Cell>(); // Lista de celdas disponibles para moverse
+    public Dictionary<Cell, Cell> availableCells = new Dictionary<Cell, Cell>(); // Diccionario de celdas disponibles para moverse
     public List<Cell> attackCells = new List<Cell>(); // Lista de celdas disponibles para atacar
 
 
@@ -40,11 +41,11 @@ public class MenuState : ILevelState
             IUnit unit = selectedCell.unit; // Obtenemos la unidad de la celda seleccionada
             if(unit.lastActionTurn < levelManager.currentTurn) // Si la unidad no ha actuado en este turno
             {
-                unit.gameObject.GetComponent<SpriteRenderer>().color = Color.green;
+                unit.gameObject.GetComponentInChildren<SpriteRenderer>().color = Color.green;
                 availableCells = levelManager.GetAvailableMoveCells(selectedCell); // Obtenemos las celdas disponibles para moverse
                 attackCells = levelManager.GetAvailableAttackCells(selectedCell); // Obtenemos las celdas disponibles para atacar
                 if(attackCells.Count > 0) CreateButton("Attack", () => GoToPreviewAttackState()); // Opción de atacar
-                if(selectedCell.capturable && !selectedCell.player)
+                if(selectedCell.capturable && unit.unitType==UnitType.Base && !selectedCell.player)
                     CreateButton("Capture", () => CaptureCell()); // Opción de capturar la celda
                 if (unit.lastMoveTurn < levelManager.currentTurn && availableCells.Count > 0)
                     CreateButton("Move", () => GoToPreviewMoveState()); // Opción de mover a la celda seleccionada
@@ -67,7 +68,7 @@ public class MenuState : ILevelState
         if (selectedCell.isOccupied) // Si la celda está ocupada, restaurar el color de la unidad
         {
             IUnit unit = selectedCell.unit; // Obtenemos la unidad de la celda seleccionada
-            unit.gameObject.GetComponent<SpriteRenderer>().color = Color.white;
+            unit.gameObject.GetComponentInChildren<SpriteRenderer>().color = Color.white;
         }
         menuUI.SetActive(false); // Ocultar el menú
     }
