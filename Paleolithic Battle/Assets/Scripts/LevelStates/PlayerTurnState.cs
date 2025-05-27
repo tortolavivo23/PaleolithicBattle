@@ -22,6 +22,7 @@ public class PlayerTurnState : ILevelState
 
     public void GoToEnemyTurnState()
     {
+        Debug.Log("Cambiando al estado de turno del enemigo");
         levelManager.AddMoney(false); // Añadir dinero al enemigo
         levelManager.ChangeState(levelManager.enemyTurnState); // Cambiamos el estado actual a EnemyTurnState
     }
@@ -67,6 +68,7 @@ public class PlayerTurnState : ILevelState
     }
 
     public void EnterState(){
+        Debug.Log("Entrando al estado de turno del jugador");
         levelManager.endTurnButton.gameObject.SetActive(true); // Mostrar el botón de fin de turno
     }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -47,6 +48,13 @@ public class BaseUnit : MonoBehaviour, IUnit
     int index = 0; // Current index in the path
 
     public float moveSpeed = 8f; // Speed at which the unit moves
+
+    private Action _OnMovementFinished; // Action to be called when the unit finishes moving
+    public Action OnMovementFinished
+    {
+        get => _OnMovementFinished;
+        set => _OnMovementFinished = value;
+    }
 
     private void Start()
     {
@@ -121,11 +129,19 @@ public class BaseUnit : MonoBehaviour, IUnit
         if (transform.position != physicalPosition)
         {
             transform.position = Vector3.MoveTowards(transform.position, physicalPosition, Time.deltaTime * moveSpeed);
-            if (transform.position == physicalPosition && path != null && index < path.Length - 1)
+            if (transform.position == physicalPosition)
             {
-                Debug.Log($"Moving to next position in path: {physicalPosition}");
-                index++;
-                physicalPosition = path[index];
+                if (path != null && index < path.Length - 1)
+                {
+                    index++;
+                    physicalPosition = path[index];
+                }
+                else
+                {
+                    path = null; // Clear the path when finished
+                    index = 0; // Reset index
+                    OnMovementFinished?.Invoke(); // Invoke the movement finished action
+                }
             }
         }
     }

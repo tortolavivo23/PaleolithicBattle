@@ -225,7 +225,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 10.28
+  orthographic size: 24.87
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -250,8 +250,8 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.7, y: 10.5, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 24.3, y: 23.9, z: -10}
+  m_LocalScale: {x: 0.90277, y: 0.90277, z: 0.90277}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1120,7 +1120,7 @@ PrefabInstance:
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: map
       value: 
-      objectReference: {fileID: 11400000, guid: e42947e64bc20be48ae69d64218c034b, type: 2}
+      objectReference: {fileID: 11400000, guid: 1c4aeaf84a8a947429dd933c9df094f9, type: 2}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: menu
       value: 
@@ -1129,6 +1129,10 @@ PrefabInstance:
       propertyPath: moneyText
       value: 
       objectReference: {fileID: 1283657487}
+    - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
+      propertyPath: moneyTurn
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: cellParent
       value: 
@@ -1139,7 +1143,7 @@ PrefabInstance:
       objectReference: {fileID: 519420031}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: moneyEnemy
-      value: 200
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: cameraSpeed
@@ -1147,7 +1151,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: moneyPlayer
-      value: 200
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
+      propertyPath: moneyPerCave
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: endTurnButton
@@ -1155,7 +1163,7 @@ PrefabInstance:
       objectReference: {fileID: 1525119549}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: maxCameraSize
-      value: 10.3
+      value: 24.9
       objectReference: {fileID: 0}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: CellBasePrefab
@@ -1179,7 +1187,7 @@ PrefabInstance:
       objectReference: {fileID: 2946679824803635572, guid: 88c237be0fe9b0d4d97dade41b162125, type: 3}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: cameraZoomSpeed
-      value: 667.1
+      value: 978.5
       objectReference: {fileID: 0}
     - target: {fileID: 3900957708146447395, guid: 74a5d38235d6e5940847760071e30f91, type: 3}
       propertyPath: UnitEnemyBasePrefab

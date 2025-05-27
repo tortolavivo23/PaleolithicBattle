@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,6 +24,7 @@ public interface IUnit
     public int lastActionTurn { get; set; }
 
     bool playerUnit { get; set; }
+    public Action OnMovementFinished { get; set; }
     void Move(int x, int y);
     void Attack(IUnit target, float multiplier);
     void GetDamage(float damage);

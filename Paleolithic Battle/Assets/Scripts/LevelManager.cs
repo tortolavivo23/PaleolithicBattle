@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -75,6 +76,10 @@ public class LevelManager : MonoBehaviour
 
     public TextMeshProUGUI moneyText; // Reference to the money text UI element
 
+    [HideInInspector] public Cell playerBase;
+    [HideInInspector] public Cell enemyBase;
+
+    public GameObject cellParent;
 
     void Awake()
     {
@@ -108,6 +113,7 @@ public class LevelManager : MonoBehaviour
             {
                 GameObject cellPrefab = GetCellPrefab(map.GetCellType(j, i));
                 GameObject cellObject = Instantiate(cellPrefab, new Vector3(j * cellSize, i * cellSize, 0), Quaternion.identity);
+                cellObject.transform.SetParent(cellParent.transform); // Set the parent of the cell object
                 cellObject.GetComponent<SpriteRenderer>().sortingOrder = -i; // Set sorting order based on y position
                 Cell cell = cellObject.GetComponent<Cell>();
                 cell.x = j;
@@ -122,6 +128,7 @@ public class LevelManager : MonoBehaviour
                         cell.spriteNeutral.SetActive(false); // Hide neutral sprite
                         cell.spritePlayer.SetActive(true); // Show player sprite
                         if (cell.cellType == CellType.Cave) cavePlayer++; // Increment player cave count
+                        else if (cell.cellType == CellType.Base) playerBase = cell; // Set player base cell
                     }
                     else if (cell.enemy)
                     {
@@ -130,6 +137,7 @@ public class LevelManager : MonoBehaviour
                         cell.spriteEnemy.SetActive(true); // Show enemy sprite
                         if (cell.cellType == CellType.Camp) enemyCamps.Add(cell);
                         else if (cell.cellType == CellType.Cave) caveEnemy++; // Increment player cave count
+                        else if (cell.cellType == CellType.Base) enemyBase = cell; // Set enemy base cell
                     }
                     else
                     {
@@ -175,11 +183,10 @@ public class LevelManager : MonoBehaviour
                 if (player) return UnitBasePrefab;
                 else return UnitEnemyBasePrefab;
             case UnitType.Heavy:
-            {
-                Debug.Log("UnitType: " + unitType + ", Player: " + player);
-                if (player) return UnitHeavyPrefab;
+                {
+                    if (player) return UnitHeavyPrefab;
                     else return UnitEnemyHeavyPrefab;
-            }
+                }
             case UnitType.Range:
                 if (player) return UnitRangePrefab;
                 else return UnitEnemyRangePrefab;
@@ -199,7 +206,7 @@ public class LevelManager : MonoBehaviour
             return CanAffordUnit(unitType, moneyEnemy, playerTurn);
         }
     }
-    private bool CanAffordUnit(UnitType unitType,  float money, bool playerTurn = true)
+    private bool CanAffordUnit(UnitType unitType, float money, bool playerTurn = true)
     {
         GameObject unitPrefab = GetUnitPrefab(unitType, playerTurn);
         if (unitPrefab != null)
@@ -326,7 +333,7 @@ public class LevelManager : MonoBehaviour
 
     public void CreateUnit(UnitType unitType, Cell selectedCell, bool playerTurn, bool moneyCost = true)
     {
-        if (! (!moneyCost || CanAffordUnit(unitType, playerTurn))) // Check if the player can afford the unit
+        if (!(!moneyCost || CanAffordUnit(unitType, playerTurn))) // Check if the player can afford the unit
         {
             Debug.Log("Not enough money to create unit!"); // Log a message if the player cannot afford the unit
             return; // Exit the method if the player cannot afford the unit
@@ -340,7 +347,6 @@ public class LevelManager : MonoBehaviour
         GameObject unitPrefab = GetUnitPrefab(unitType, playerTurn); // Get the unit prefab based on the unit type and player turn
         if (unitPrefab != null) // Check if the unit prefab is found and if the player can afford the unit
         {
-            Debug.Log("Creating unit: " + unitType + " at cell: " + selectedCell.x + ", " + selectedCell.y); // Log the unit creation
             GameObject unitObject = Instantiate(unitPrefab, new Vector3(selectedCell.x * cellSize, selectedCell.y * cellSize + cellSize / 2, 0), Quaternion.identity);
             IUnit unit = unitObject.GetComponent<IUnit>();
             unit.SetPosition(selectedCell.x, selectedCell.y); // Set the unit's position
@@ -368,7 +374,7 @@ public class LevelManager : MonoBehaviour
 
     public void MoveUnit(IUnit unit, Cell targetCell, Dictionary<Cell, Cell> availableCells = null)
     {
-        if(targetCell == null || targetCell.isOccupied || targetCell.unit != null) // Check if the target cell is valid and not occupied by another unit
+        if (targetCell == null || targetCell.isOccupied || targetCell.unit != null) // Check if the target cell is valid and not occupied by another unit
         {
             Debug.Log("Invalid target cell for movement!"); // Log a message if the target cell is invalid
             return; // Exit the method if the target cell is invalid
@@ -402,11 +408,11 @@ public class LevelManager : MonoBehaviour
                         currentCell = null; // No previous cell found, end the path
                     }
                 }
-                Debug.Log("Path found for unit: " + unit.unitType + " with length: " + path.Count);
                 unit.SetPath(new List<Vector2>(path)); // Set the unit's path
             }
         }
-        else {
+        else
+        {
             // Move the unit's GameObject to the new position
             unit.SetPhysicalPosition(new Vector2(targetCell.x * cellSize, targetCell.y * cellSize + cellSize / 2));
         }
@@ -585,6 +591,68 @@ public class LevelManager : MonoBehaviour
     public int GetDistance(Cell cell1, Cell cell2)
     {
         return Mathf.Abs(cell1.x - cell2.x) + Mathf.Abs(cell1.y - cell2.y); // Distancia Manhattan
+    }
+
+    public int RealDistance(Cell origin, Cell target, IUnit unit)
+    {
+        if (origin == null || target == null || unit.unitType == UnitType.Heavy && target.cellType == CellType.Mountain)
+            return int.MaxValue;
+
+        bool[,] visited = new bool[map.height, map.width]; // Create a 2D array to track visited cells
+        Queue<Cell> queue = new Queue<Cell>(); // Create a queue for BFS
+        queue.Enqueue(origin); // Enqueue the starting cell
+        queue.Enqueue(null); // Enqueue a null marker for the next level
+        int distance = 0; // Initialize the distance counter
+        while (queue.Count > 0)
+        {
+            Cell currentCell = queue.Dequeue();
+            if (currentCell == null)
+            {
+                distance++;
+                queue.Enqueue(null); // Add a marker for the next level
+                continue;
+            }
+
+            if (visited[currentCell.y, currentCell.x]) continue; // If we have already visited this cell, skip it
+            visited[currentCell.y, currentCell.x] = true; // Mark the cell as visited
+
+            if (unit.unitType == UnitType.Heavy && currentCell.cellType == CellType.Mountain) continue; // Si la unidad es pesada y la celda es montaña, la ignoramos
+            if (currentCell == target) return distance; // If we reached the target cell, return the distance 
+            // Add adjacent cells to the queue
+            foreach (var adjacentCell in GetAdjacentCells(currentCell))
+            {
+                if (!visited[adjacentCell.y, adjacentCell.x] &&
+                 (unit.unitType == UnitType.Water && adjacentCell.cellType == CellType.Water ||
+                 (unit.unitType != UnitType.Water && adjacentCell.cellType != CellType.Water))) // Only add unoccupied cells and not water cells if the unit is not water type
+                {
+                    queue.Enqueue(adjacentCell);
+                }
+            }
+        }
+        return int.MaxValue; // If we exhaust the queue without finding the target, return max value
+    }
+
+    public List<IUnit> GetUnitsInRange(Cell cell, int range, bool playerTurn = false)
+    {
+        List<IUnit> unitsInRange = new List<IUnit>(); // Create a list to store units in range
+        foreach (var unit in playerTurn ? playerUnits : enemyUnits) // Iterate through the player's or enemy's units
+        {
+            if (unit.currentCell != null && GetDistance(cell, unit.currentCell) <= range) // Check if the unit is within range
+            {
+                unitsInRange.Add(unit); // Add the unit to the list if it is within range
+            }
+        }
+        return unitsInRange; // Return the list of units in range
+    }
+
+    public List<Cell> GetAllCells()
+    {
+        List<Cell> allCells = new List<Cell>();
+        foreach (var row in cells)
+        {
+            allCells.AddRange(row); // Add all cells from each row to the list
+        }
+        return allCells; // Return the list of all cells
     }
 
 }
