@@ -16,7 +16,6 @@ class AttackNode : BTNode
 
     public override BTState Tick(IUnit unit)
     {
-        Debug.Log("AttackNode");
         if (actedUnits.Contains(unit))
             return BTState.Failure;
         actedUnits.Add(unit);

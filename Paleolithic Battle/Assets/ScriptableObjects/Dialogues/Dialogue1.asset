@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a9e87945dd182b43b86c5aa83a3c3b6, type: 3}
+  m_Name: Dialogue1
+  m_EditorClassIdentifier: 
+  Messages:
+  - currentMsg: Tika! The river tribe is coming! They're crossing the plain!
+  - currentMsg: Listen, Zor. Your turn has begun. You can move each unit once. Then
+      they can attack or capture.
+  - currentMsg: Capture what?
+  - currentMsg: Tipis, huts, and caves. Caves give us money every turn if we control
+      them.
+  - currentMsg: What do we do with the money?
+  - currentMsg: Use it to recruit more units in huts. And if you save enough you
+      can even recruit a powerful unit.
+  - currentMsg: Zor wants more caves. More huts.
+  - currentMsg: 'Then go and take them. But remember: If they capture our tipi, we
+      lose. If you capture theirs, we win.'
+  - currentMsg: Zor understands. What about fighting?
+  - currentMsg: When you attack, you can play a minigame. Win it, and you deal extra
+      damage. Lose it, you deal less damage. Skip it, and you deal normal damage.
+  - currentMsg: Zor chooses wisely. Zor thinks.
+  - currentMsg: "There\u2019s more. If you defeat all their units, we win. But if
+      we lose all our units, we lose\u2026 even if our tipi still stands."
+  - currentMsg: " Zor has many ways to win\u2026 and many ways to lose."
+  - currentMsg: Exactly. Attack with thought. Capture with strategy. And protect
+      your warriors like you protect fire.
+  - currentMsg: Zor is ready. Zor goes east. Zor takes his turn!

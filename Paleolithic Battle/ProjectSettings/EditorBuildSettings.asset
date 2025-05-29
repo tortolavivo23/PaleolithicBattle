@@ -6,8 +6,32 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
+    path: Assets/Scenes/MainMenu.unity
+    guid: 268c085b70aba58419629e926988ddd0
+  - enabled: 1
+    path: Assets/Scenes/LevelSelector.unity
+    guid: f74ddc3f5ec6e9940b047a8dd154758c
+  - enabled: 1
+    path: Assets/Scenes/Talking/Talking1.unity
+    guid: dda9d75047c7fc24da0a67d000046738
+  - enabled: 1
+    path: Assets/Scenes/Levels/Level1.unity
+    guid: c852301704b21fe45a3809e8daa9c0d5
+  - enabled: 1
+    path: Assets/Scenes/Talking/Talking2.unity
+    guid: eed766624380337408c1980b5456f8f4
+  - enabled: 1
+    path: Assets/Scenes/Levels/Level2.unity
+    guid: 7e5f827d734a75a4f83e2066a776a26e
+  - enabled: 1
+    path: Assets/Scenes/Talking/Talking3.unity
+    guid: 2a0e3032f4e497c48a5e62031490055c
+  - enabled: 1
+    path: Assets/Scenes/Levels/Level3.unity
+    guid: 01d2b3a1b7dfb9c46bc3396736397d1c
+  - enabled: 1
+    path: Assets/Scenes/EndGameScene.unity
+    guid: b05d936aa1d51bc478da46d9ea6ba58a
   - enabled: 1
     path: Assets/Scenes/Minigames/MinigameButtom.unity
     guid: e2a8c1fb18e82b44a84b30848368457c

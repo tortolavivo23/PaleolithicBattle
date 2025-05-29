@@ -160,11 +160,14 @@ MonoBehaviour:
   _attackPower: 10
   _defensePower: 2
   _movementRange: 3
+  _unitType: 1
   _minAttackRange: 1
   _maxAttackRange: 1
   _playerUnit: 1
   _maxHealth: 10
   _moneyCost: 100
+  audioAttack: MeleeAtack
+  moveSpeed: 8
 --- !u!1001 &2565776099440041960
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a9e87945dd182b43b86c5aa83a3c3b6, type: 3}
+  m_Name: Dialogue2
+  m_EditorClassIdentifier: 
+  Messages:
+  - currentMsg: "Tika... now it\u2019s your turn. The enemies are coming from the
+      south! And they bring mammoths!"
+  - currentMsg: "Yes\u2026 I see them. Heavy units. Big, strong\u2026 But they can\u2019t
+      climb the mountain."
+  - currentMsg: "They can\u2019t get through there?"
+  - currentMsg: "No. They\u2019re too big. The mountain is a wall for them. But I
+      can stay up high\u2026 and attack from afar."
+  - currentMsg: "Zor understands. They can\u2019t reach you."
+  - currentMsg: "Exactly. There\u2019s no extra damage or extra defense here\u2026
+      But from up high, I strike, and they can\u2019t hit back."
+  - currentMsg: Zor crushes. Tika thinks.
+  - currentMsg: "That\u2019s why we\u2019re winning. I have to hold the high ground
+      and stop them from surrounding us. If I play my turn right\u2026 their mammoths
+      will never get close."
+  - currentMsg: Zor watches and learns. Tika fights like the wind. Far. Steady. Deadly.
+  - currentMsg: "And Zor guards the tipi. If they climb, it\u2019ll be from another
+      side. Now they\u2019ll see that being big isn\u2019t enough."

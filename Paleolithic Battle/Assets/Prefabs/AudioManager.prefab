@@ -1,0 +1,167 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2760973898075170770
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8725194393176295879}
+  - component: {fileID: 3488294292346426117}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8725194393176295879
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2760973898075170770}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1016.6611, y: 564.7933, z: 2.0925388}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3488294292346426117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2760973898075170770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea9f5ebf1b5885047a9f30c03bee7bc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sounds:
+  - name: Click
+    clip: {fileID: 8300000, guid: a49a83b10599dd2429ef3cbf3c5dd4a4, type: 3}
+    volume: 0.517
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: LoseMinigame
+    clip: {fileID: 8300000, guid: 2b9fc6c7ecd0fa640a41f2239ad63246, type: 3}
+    volume: 0.517
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: WinMinigame
+    clip: {fileID: 8300000, guid: 77441a7549489a14e933818f7db48364, type: 3}
+    volume: 0.517
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: Victory
+    clip: {fileID: 8300000, guid: 47d70e589fc18344482d9265936c7820, type: 3}
+    volume: 0.517
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: Lose
+    clip: {fileID: 8300000, guid: 443fc4933aa510f49a3718a9c22b8b01, type: 3}
+    volume: 0.517
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: MeleeAtack
+    clip: {fileID: 8300000, guid: e248b365d6d8bd3478eddf2a7f65165b, type: 3}
+    volume: 0.517
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: RangeAttack
+    clip: {fileID: 8300000, guid: fbc8591f7d7f71240af778a7c4ad1c33, type: 3}
+    volume: 0.517
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: HeavyAttack
+    clip: {fileID: 8300000, guid: 6469405ef91650b4bbc9fcd8288559ab, type: 3}
+    volume: 0.15
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: Jump
+    clip: {fileID: 8300000, guid: 43281d5aa7bd2cf47b8e52246a6e0098, type: 3}
+    volume: 0.569
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: Shoot
+    clip: {fileID: 8300000, guid: 6fbd1d3ba368216408cc585a035f24d8, type: 3}
+    volume: 0.273
+    pitch: 1.1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: CaptureCell
+    clip: {fileID: 8300000, guid: 0c5490cdeb41d8a4785c5c14a3b08ffa, type: 3}
+    volume: 0.517
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: BreakSphere
+    clip: {fileID: 8300000, guid: f175db087e00ced40816bbd1768fbc1c, type: 3}
+    volume: 0.429
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: TypewriterA
+    clip: {fileID: 8300000, guid: de218668801e20a4b82d90fa8665e0f1, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 1
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: TypewriterB
+    clip: {fileID: 8300000, guid: de218668801e20a4b82d90fa8665e0f1, type: 3}
+    volume: 1
+    pitch: 1.51
+    loop: 1
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: NotePlayed
+    clip: {fileID: 8300000, guid: 351c30c229b6f9a4095378252e47ec40, type: 3}
+    volume: 0.67
+    pitch: 1
+    loop: 0
+    mixerGroup: {fileID: 4300246276632550821, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: LevelMusic
+    clip: {fileID: 8300000, guid: 7ab5cfea8c36faf419de38ced811bbd6, type: 3}
+    volume: 0.584
+    pitch: 1
+    loop: 1
+    mixerGroup: {fileID: 4506140597134138901, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  - name: MainMenuMusic
+    clip: {fileID: 8300000, guid: 858008d02071de54cafa07b526c8c1e1, type: 3}
+    volume: 0.2
+    pitch: 1
+    loop: 1
+    mixerGroup: {fileID: 4506140597134138901, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}
+    source: {fileID: 0}
+  masterMixerGroup: {fileID: 24300002, guid: 81b70b259a9bc294db88b8924acbe217, type: 2}

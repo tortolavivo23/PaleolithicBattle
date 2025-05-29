@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -63,6 +64,7 @@ public class LevelManager : MonoBehaviour
 
     [HideInInspector] public Cell selectedCell; // The cell selected by the player
     public int minigameResult = 0; // Result of the minigame (0: not played, 1: win, -1: lose)
+    public bool playingMinigame = false; // Flag to indicate if a minigame is being played
 
     [HideInInspector] public Minigames minigames; // Reference to the minigames data
 
@@ -80,6 +82,12 @@ public class LevelManager : MonoBehaviour
     [HideInInspector] public Cell enemyBase;
 
     public GameObject cellParent;
+
+
+    public int moneyToGetStar = 1000;
+    public int turnsToGetStar = 10;
+
+    public String levelMusic = "LevelMusic"; // Name of the level music to play
 
     void Awake()
     {
@@ -101,6 +109,7 @@ public class LevelManager : MonoBehaviour
         minigames = JsonUtility.FromJson<Minigames>(Resources.Load<TextAsset>("minigames").text); // Load minigames data from JSON file
         currentTurn++;
         moneyText.text = "Money: " + moneyPlayer; // Update the money text UI element
+        AudioManager.Instance.Play(levelMusic); // Play the level music
     }
 
     private void InitializeMap()
@@ -232,6 +241,29 @@ public class LevelManager : MonoBehaviour
     {
         ControlCamera(); // Control camera movement and zoom
         currentState.UpdateState();
+        // If we are in debug mode, allow end game using numbers
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            AudioManager.Instance.Stop(levelMusic); // Stop the level music
+            GameManager.Instance.EndGame(0); // End the game with a loss for the player
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            AudioManager.Instance.Stop(levelMusic); // Stop the level music
+            GameManager.Instance.EndGame(1); // End the game with a win for the player with 1 star
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            AudioManager.Instance.Stop(levelMusic); // Stop the level music
+            GameManager.Instance.EndGame(2); // End the game with a win for the player with 2 stars
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            AudioManager.Instance.Stop(levelMusic); // Stop the level music
+            GameManager.Instance.EndGame(3); // End the game with a win for the player with 3 stars
+        }
+#endif
     }
 
     void ControlCamera()
@@ -431,8 +463,24 @@ public class LevelManager : MonoBehaviour
             attacker.Attack(target, multiplier); // Apply damage to the target unit
             if (target.health <= 0) // Check if the target unit is dead
             {
-                if (target.playerUnit) playerUnits.Remove(target); // Remove the target unit from the player's units list
-                else enemyUnits.Remove(target); // Remove the target unit from the enemy units list
+                if (target.playerUnit)
+                {
+                    playerUnits.Remove(target); // Remove the target unit from the player's units list
+                    if (playerUnits.Count == 0) // Check if the player has no units left
+                    {
+                        Debug.Log("Player has no units left!"); // Log a message if the player has no units left
+                        EndGame(false); // End the game with a loss for the player
+                    }
+                }
+                else
+                {
+                    enemyUnits.Remove(target); // Remove the target unit from the enemy units list
+                    if (enemyUnits.Count == 0) // Check if the enemy has no units left
+                    {
+                        Debug.Log("Enemy has no units left!"); // Log a message if the enemy has no units left
+                        EndGame(true); // End the game with a win for the player
+                    }
+                }
                 Destroy(target.gameObject); // Destroy the target unit's GameObject
                 target.currentCell.isOccupied = false; // Mark the cell as unoccupied
                 target.currentCell.unit = null; // Remove the unit from the cell
@@ -443,7 +491,7 @@ public class LevelManager : MonoBehaviour
     public void CaptureCell(Cell cell, bool playerTurn)
     {
         if (!cell.capturable) return; // Exit if the cell is not capturable
-
+        AudioManager.Instance.Play("CaptureCell"); // Play the capture sound effect
         switch (cell.cellType)
         {
             case CellType.Cave:
@@ -466,12 +514,12 @@ public class LevelManager : MonoBehaviour
                 if (playerTurn) // Check if the player is capturing the base
                 {
                     Debug.Log("Player captured the enemy base!"); // Log a message if the player captures the enemy base
-                    //SceneManager.LoadScene("VictoryScene"); // Load the victory scene if the player captures the enemy base
+                    EndGame(true); // End the game with a win for the player
                 }
                 else
                 {
                     Debug.Log("Enemy captured the player base!"); // Log a message if the enemy captures the player's base
-                    //SceneManager.LoadScene("GameOverScene"); // Load the game over scene if the enemy captures the player's base
+                    EndGame(false); // End the game with a loss for the player
                 }
                 break;
 
@@ -655,4 +703,23 @@ public class LevelManager : MonoBehaviour
         return allCells; // Return the list of all cells
     }
 
+
+    private void EndGame(bool playerWon)
+    {
+        AudioManager.Instance.Stop(levelMusic); // Stop the level music
+        Debug.Log(playerWon ? "Player won!" : "Player lost!"); // Log the game result
+        if (!playerWon)
+        {
+            AudioManager.Instance.Play("Lose"); // Play lose sound
+            GameManager.Instance.EndGame(0);
+        }
+        else
+        {
+            int stars = 1;
+            if (moneyPlayer >= moneyToGetStar) stars++;
+            if (currentTurn <= turnsToGetStar) stars++;
+            AudioManager.Instance.Play("Victory"); // Play win sound
+            GameManager.Instance.EndGame(stars); // End the game with the specified number of stars
+        }
+    }
 }

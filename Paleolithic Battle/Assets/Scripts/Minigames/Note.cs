@@ -42,6 +42,7 @@ public class Note : MonoBehaviour
                     minigameTiles.LastPlayedNoteId = Id;
                     Played = true;
                     animator.Play("Played");
+                    AudioManager.Instance.RandomPitch("NotePlayed", 0.7f, 1.3f);
                     minigameTiles.tilesToWin--;
                 }
             }

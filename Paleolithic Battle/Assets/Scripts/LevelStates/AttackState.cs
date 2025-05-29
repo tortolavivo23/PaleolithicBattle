@@ -42,6 +42,7 @@ public class AttackState : ILevelState
 
     void PlayMinigame()
     {
+        levelManager.playingMinigame = true; // Indicar que se está jugando un minijuego
         levelManager.moneyText.enabled = false;
         minigame = true; // Indicar que se ha jugado un minijuego
         minigameName = levelManager.minigames.RandomMinigame(); // Obtener un minijuego aleatorio
@@ -50,6 +51,7 @@ public class AttackState : ILevelState
 
     public void ExitState()
     {
+        levelManager.playingMinigame = false; // Indicar que ya no se está jugando un minijuego
         levelManager.moneyText.enabled = true; // Activar el texto de dinero
        
     }
@@ -86,21 +88,17 @@ public class AttackState : ILevelState
 
     public void UpdateState()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) // Si el jugador presiona Escape
-        {
-            levelManager.ChangeState(levelManager.playerTurnState); // Cambiar al estado de turno del jugador
-            SceneManager.UnloadSceneAsync(minigameName); // Descargar la escena del minijuego
-        }
-
         if (minigame && levelManager.minigameResult > 0)
         {
             Debug.Log("Ganaste el minijuego");
+            AudioManager.Instance.Play("WinMinigame");
             levelManager.AttackUnit(selectedUnit, targetUnit, 1.5f);
             GoToPlayerTurnState();
         }
         else if (minigame && levelManager.minigameResult < 0)
         {
             Debug.Log("Perdiste el minijuego");
+            AudioManager.Instance.Play("LoseMinigame");
             levelManager.AttackUnit(selectedUnit, targetUnit, 0.5f);
             GoToPlayerTurnState();
         }
@@ -123,6 +121,7 @@ public class AttackState : ILevelState
         GameObject button = Object.Instantiate(buttonPrefab, menuUI.transform.position - new Vector3(0, -height/2 + buttonCount*50, 0), Quaternion.identity); // Crear el botón en la posición del menú
         button.transform.SetParent(menuUI.transform); // Establecer el padre del botón como el menú
         button.GetComponentInChildren<TextMeshProUGUI>().text = buttonText; // Cambiar el texto del botón
+        button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => AudioManager.Instance.Play("Click"));
         button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => menuUI.SetActive(false)); // Cerrar el menú al hacer clic en el botón
         button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => onClickAction.Invoke()); // Asignar la acción al botón
     }

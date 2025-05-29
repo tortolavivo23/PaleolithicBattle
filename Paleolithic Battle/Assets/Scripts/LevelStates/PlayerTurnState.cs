@@ -8,6 +8,7 @@ public class PlayerTurnState : ILevelState
     public PlayerTurnState(LevelManager levelManager)
     {
         this.levelManager = levelManager;
+        levelManager.endTurnButton.onClick.AddListener(() => AudioManager.Instance.Play("Click"));
         levelManager.endTurnButton.onClick.AddListener(EndTurn); // Añadir el listener al botón de fin de turno
     }
 

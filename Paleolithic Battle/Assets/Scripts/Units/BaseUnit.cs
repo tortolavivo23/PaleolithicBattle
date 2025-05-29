@@ -42,6 +42,8 @@ public class BaseUnit : MonoBehaviour, IUnit
     public int lastActionTurn { get => _lastActionTurn; set => _lastActionTurn = value; } // Last turn the unit performed an action
     int x, y;
 
+    public string audioAttack;
+
     Vector3 physicalPosition; // Physical position of the unit in the game world
 
     Vector2[] path; // Path the unit will followç
@@ -78,6 +80,10 @@ public class BaseUnit : MonoBehaviour, IUnit
             return;
         }
         // Calculate damage based on attack and defense power
+        if (audioAttack != null && audioAttack != "")
+        {
+            AudioManager.Instance.Play(audioAttack);
+        }
         float damage = Mathf.Max(0, attackPower * multiplier - target.defensePower);
         target.GetDamage(damage);
     }
@@ -126,25 +132,32 @@ public class BaseUnit : MonoBehaviour, IUnit
 
     void Update()
     {
-        if (transform.position != physicalPosition)
+        if(path != null && index < path.Length)
         {
+            // Move the unit towards the next position in the path
             transform.position = Vector3.MoveTowards(transform.position, physicalPosition, Time.deltaTime * moveSpeed);
+
+            // Check if the unit has reached the target position
             if (transform.position == physicalPosition)
             {
-                if (path != null && index < path.Length - 1)
+                index++;
+                if (index >= path.Length)
                 {
-                    index++;
-                    physicalPosition = path[index];
+                    // If the unit has reached the end of the path, call OnMovementFinished
+                    OnMovementFinished?.Invoke();
+                    OnMovementFinished = null; // Clear the action to avoid multiple calls
+                    path = null; // Clear the path after movement is finished
                 }
                 else
                 {
-                    path = null; // Clear the path when finished
-                    index = 0; // Reset index
-                    OnMovementFinished?.Invoke(); // Invoke the movement finished action
+                    // Update the physical position to the next target position
+                    physicalPosition = path[index];
                 }
             }
         }
     }
+
+
 }
 
 

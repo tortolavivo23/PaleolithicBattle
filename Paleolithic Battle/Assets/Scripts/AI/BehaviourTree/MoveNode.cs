@@ -8,12 +8,17 @@ class MoveNode : BTNode
     private Dictionary<IUnit, bool> isMoving = new();
 
     public MoveNode(LevelManager manager) => levelManager = manager;
+    
+    public void Reset()
+    {
+        isMoving.Clear();
+    }
 
     public override BTState Tick(IUnit unit)
     {
         if (!isMoving.ContainsKey(unit))
         {
-            Debug.Log("MoveNode");
+            Debug.Log($"Unidad {unit} ha empezado a moverse");
             Dictionary<Cell, Cell> availableCells = levelManager.GetAvailableMoveCells(unit.currentCell);
             if (availableCells.Count == 0) return BTState.Failure;
 
@@ -23,13 +28,18 @@ class MoveNode : BTNode
             if (best == null || best.isOccupied) return BTState.Failure;
 
             isMoving[unit] = true;
-            unit.OnMovementFinished = () => isMoving[unit] = false;
+            unit.OnMovementFinished = () =>
+            {
+                isMoving[unit] = false;
+                Debug.Log($"Unidad {unit} ha terminado de moverse");
+            };
             levelManager.MoveUnit(unit, best, availableCells);
             return BTState.Running;
         }
 
         if (isMoving[unit]) return BTState.Running;
 
+        Debug.Log("End Move");
         isMoving.Remove(unit);
         return BTState.Success;
     }

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a9e87945dd182b43b86c5aa83a3c3b6, type: 3}
+  m_Name: Dialogue3
+  m_EditorClassIdentifier: 
+  Messages:
+  - currentMsg: " Tika\u2026 something feels different."
+  - currentMsg: Because this is it. The final battle.
+  - currentMsg: Zor feels the ground shake.
+  - currentMsg: "Here, running and hitting won\u2019t be enough. Everything we learned...
+      now we must use it."
+  - currentMsg: Everything?
+  - currentMsg: Move smart. Strike with purpose. Capture fast. Save. Recruit. Defend.
+      And think every step.
+  - currentMsg: Zor is ready. Where are they?
+  - currentMsg: Everywhere. But the key is the center.
+  - currentMsg: ' The center?'
+  - currentMsg: "Yes. If we take the center, we gain more caves, more huts. More
+      money each turn. More paths to strike. Whoever controls the center\u2026 controls
+      the map."
+  - currentMsg: Then Zor will take the center.
+  - currentMsg: "Carefully. Don\u2019t go alone. If they ambush you, it\u2019ll be
+      hard to take it back."
+  - currentMsg: Zor thinks now. Zor is not who he was.
+  - currentMsg: "Neither am I. Now we fight like tribe leaders. With strength\u2026
+      and wisdom."
+  - currentMsg: "Then let it begin. Final battle\u2026 final turn!"

@@ -55,6 +55,7 @@ public class MinigameFPS : MonoBehaviour
         if (!gameStarted) return;
         if (Input.GetMouseButtonDown(0))
         {
+            AudioManager.Instance.Play("Shoot");
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
@@ -62,6 +63,7 @@ public class MinigameFPS : MonoBehaviour
             {
                 if (hit.collider.CompareTag("Sphere"))
                 {
+                    AudioManager.Instance.Play("BreakSphere");
                     Destroy(hit.collider.gameObject);
                     numberOfTargets--;
 

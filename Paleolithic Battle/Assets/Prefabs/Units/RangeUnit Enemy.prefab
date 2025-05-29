@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: -252739301
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: -7412356119485139327, guid: 7865fb2d91eb55346979c95ade797daa, type: 3}
+  m_Sprite: {fileID: -4704783586707455919, guid: 3dfaf5af8597e7d40bc0cce2953397b3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
   m_FlipY: 0
@@ -98,7 +98,7 @@ Animator:
   m_GameObject: {fileID: 1937262465581822040}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 0ca3f7feb146d804fb87f11ab13966e5, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -166,6 +166,7 @@ MonoBehaviour:
   _playerUnit: 1
   _maxHealth: 7
   _moneyCost: 100
+  audioAttack: RangeAttack
   moveSpeed: 12
 --- !u!1001 &2565776099440041960
 PrefabInstance:

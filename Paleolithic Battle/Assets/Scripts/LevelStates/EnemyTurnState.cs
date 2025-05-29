@@ -10,17 +10,20 @@ public class EnemyTurnState : ILevelState
     private CaptureNode captureNode;
     private AttackNode attackNode;
 
+    private MoveNode moveNode;
+
 
     public EnemyTurnState(LevelManager levelManager)
     {
         this.levelManager = levelManager;
         captureNode = new CaptureNode(levelManager);
         attackNode = new AttackNode(levelManager);
+        moveNode = new MoveNode(levelManager);
         behaviourTree = new Selector(
             captureNode,
             new Selector(
                 new Sequence(
-                    new MoveNode(levelManager),
+                    moveNode,
                     new Selector(
                         captureNode,
                         attackNode
@@ -36,6 +39,7 @@ public class EnemyTurnState : ILevelState
         Debug.Log("Enemy Turn State Entered");
         captureNode.Reset();
         attackNode.Reset();
+        moveNode.Reset();
         levelManager.StartCoroutine(EnemyTurnRoutine());
     }
 
@@ -56,6 +60,7 @@ public class EnemyTurnState : ILevelState
 
     private IEnumerator ExecuteBehaviourTree(IUnit unit)
     {
+        Debug.Log($"Unidad {unit} ha empezado su turno");
         BTState state = BTState.Running;
         int safetyCounter = 0;
 
@@ -67,10 +72,10 @@ public class EnemyTurnState : ILevelState
                 Debug.LogError($"Bucle infinito detectado para unidad {unit}");
                 break;
             }
-            Debug.Log($"→ Ticking {unit}");
             state = behaviourTree.Tick(unit);
             yield return null;
         }
+        Debug.Log($"Unidad {unit} ha terminado su turno con estado: {state}");
     }
         
 

@@ -166,6 +166,7 @@ MonoBehaviour:
   _playerUnit: 0
   _maxHealth: 10
   _moneyCost: 100
+  audioAttack: MeleeAtack
   moveSpeed: 12
 --- !u!1001 &2565776099440041960
 PrefabInstance:

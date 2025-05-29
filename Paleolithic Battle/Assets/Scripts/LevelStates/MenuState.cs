@@ -120,6 +120,7 @@ public class MenuState : ILevelState
         GameObject button = Object.Instantiate(buttonPrefab, menuUI.transform.position - new Vector3(0, -height/2 + buttonCount*50, 0), Quaternion.identity); // Crear el botón en la posición del menú
         button.transform.SetParent(menuUI.transform); // Establecer el padre del botón como el menú
         button.GetComponentInChildren<TextMeshProUGUI>().text = buttonText; // Cambiar el texto del botón
+        button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => AudioManager.Instance.Play("Click"));
         button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => menuUI.SetActive(false)); // Cerrar el menú al hacer clic en el botón
         button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => onClickAction.Invoke()); // Asignar la acción al botón
     }
