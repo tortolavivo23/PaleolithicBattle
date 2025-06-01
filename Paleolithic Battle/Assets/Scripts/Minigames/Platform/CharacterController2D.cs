@@ -87,16 +87,4 @@ public class CharacterController2D : MonoBehaviour
         transform.Rotate(0f, 180f, 0f);
     }
 
-    // Muerte del jugador.
-    public void Death()
-    {
-
-    }
-
-
-    public void Hit()
-    {
-        Death();
-
-    }
 }

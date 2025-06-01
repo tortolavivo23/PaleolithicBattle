@@ -35,10 +35,6 @@ public class PlayerMovement : MonoBehaviour
             AudioManager.Instance.Play("Jump");
             jump = true;
         }
-        if (transform.position.y < -5)
-        {
-            controller.Death();
-        }
         animator.SetBool("Jump", jump);
     }
 

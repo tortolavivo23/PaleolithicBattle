@@ -46,6 +46,7 @@ public class MinigamePressButtom : MonoBehaviour
 
     public void PressButton()
     {
+        AudioManager.Instance.Play("Click");
         if (gameStarted) pressesToWin--;
         if (pressesToWin <= 0)
         {
